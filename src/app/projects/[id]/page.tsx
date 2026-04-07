@@ -42,8 +42,8 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       
       const { data: allLogs } = await supabase
         .from('status_log')
-        .select('*')
-        .in('module_id', moduleIds)
+        .select('*, modules!inner(id, project_id)')
+        .eq('modules.project_id', projectId)
         .order('timestamp', { ascending: true });
 
       if (projectData && allModules) {
