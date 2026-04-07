@@ -170,7 +170,10 @@ export default function Dashboard() {
               onClick={openCreateModal}
               className="bg-accent text-white font-black py-4 px-12 rounded-2xl transition-all shadow-[0_20px_40px_rgba(59,130,246,0.25)] hover:brightness-110 uppercase tracking-widest text-xs"
              >
-               🚀 Inicializar Ecosistema
+               <div className="flex items-center justify-center gap-3">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1.5 group-hover:-translate-y-1.5 transition-transform"><path d="m2 22 7-7"/><path d="M9 3v1h1"/><path d="M10 15v1h1"/><path d="M11 8V7h1"/><path d="M12 11V10h1"/><path d="M13 14V13h1"/><path d="M14 17V16h1"/><path d="M15 4V3h1"/><path d="M15 19v1h1"/><path d="M16 8V7h1"/><path d="M17 11V10h1"/><path d="M18 14V13h1"/><path d="M19 17V16h1"/><path d="M20 4V3h1"/><path d="M20 19v1h1"/><path d="m3 3 3 2 2 3 6 8 8-2-3-3-3-2-8-6-2-3z"/></svg>
+                 <span>Inicializar Ecosistema</span>
+               </div>
              </button>
           </div>
         ) : (
