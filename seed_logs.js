@@ -8,71 +8,50 @@ const supabase = createClient(
 
 async function seed() {
   const projectId = 'b66b4512-101c-4a51-92ef-6890b953d31a'; // Torre Skyline
-  console.log('Heavy Seeding project (Final fix):', projectId);
+  console.log('Final Final Heavy Seed:', projectId);
 
-  // 1. Get 1000 modules (approx 45% of project)
   const { data: modules } = await supabase
     .from('modules')
     .select('id')
     .eq('project_id', projectId)
-    .limit(1000);
-
-  if (!modules || modules.length === 0) {
-    console.log('No modules found.');
-    return;
-  }
+    .limit(800);
 
   const logs = [];
   const startDate = new Date('2026-03-01');
   const today = new Date();
   
-  // 2. Generate history
-  for (let i = 0; i < modules.length; i++) {
-    const mod = modules[i];
-    const startDay = Math.floor(Math.random() * 25);
-    const inProgressDate = new Date(startDate);
-    inProgressDate.setDate(startDate.getDate() + startDay);
+  for (const mod of modules) {
+    const startDay = Math.floor(Math.random() * 20);
+    const date1 = new Date(startDate);
+    date1.setDate(startDate.getDate() + startDay);
 
-    if (inProgressDate < today) {
+    if (date1 < today) {
       logs.push({
         module_id: mod.id,
         old_status: 'PENDING',
         new_status: 'IN_PROGRESS',
-        timestamp: inProgressDate.toISOString()
+        timestamp: date1.toISOString()
       });
 
-      // Finish most of them
-      if (Math.random() > 0.3) {
-        const finishOffset = startDay + Math.floor(Math.random() * 8) + 2;
-        const finishDate = new Date(startDate);
-        finishDate.setDate(startDate.getDate() + finishOffset);
+      const finishDay = startDay + Math.floor(Math.random() * 10) + 2;
+      const date2 = new Date(startDate);
+      date2.setDate(startDate.getDate() + finishDay);
 
-        if (finishDate < today) {
-          logs.push({
-            module_id: mod.id,
-            old_status: 'IN_PROGRESS',
-            new_status: 'COMPLETED',
-            timestamp: finishDate.toISOString()
-          });
-        }
+      if (date2 < today) {
+        logs.push({
+          module_id: mod.id,
+          old_status: 'IN_PROGRESS',
+          new_status: 'COMPLETED',
+          timestamp: date2.toISOString()
+        });
       }
     }
   }
 
-  console.log(`Inserting ${logs.length} logs into status_logs (Plural)...`);
-  
-  const batchSize = 100;
-  for (let i = 0; i < logs.length; i += batchSize) {
-    const batch = logs.slice(i, i + batchSize);
-    const { error } = await supabase.from('status_logs').insert(batch);
-    if (error) {
-      console.error('Batch error:', error);
-      break;
-    }
-    console.log(`Inserted logs ${i} to ${Math.min(i + batchSize, logs.length)}`);
-  }
-  
-  console.log('Final seed complete!');
+  console.log(`Inserting ${logs.length} logs...`);
+  const { error } = await supabase.from('status_logs').insert(logs);
+  if (error) console.error(JSON.stringify(error));
+  else console.log('Successfully seeded 800 modules worth of history!');
 }
 
 seed();
