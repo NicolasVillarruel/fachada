@@ -44,7 +44,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         .from('status_logs')
         .select('*, modules!inner(id, project_id)')
         .eq('modules.project_id', projectId)
-        .order('timestamp', { ascending: true });
+        .order('changed_at', { ascending: true });
 
       if (projectData && allModules) {
         const analytics = calculateProjectAnalytics(projectData, allModules, allLogs || []);
