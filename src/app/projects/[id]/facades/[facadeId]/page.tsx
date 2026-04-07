@@ -125,13 +125,20 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     }
   };
 
-  const progress = modules.length > 0
-    ? Math.round((modules.filter((m) => m.status === 'COMPLETED').length / modules.length) * 100)
-    : 0;
+  // Weighted formula: (Completed * 1 + InProgress * 0.5) / Total
+  const calculateProgress = () => {
+    if (modules.length === 0) return 0;
+    const completed = modules.filter((m) => m.status === 'COMPLETED').length;
+    const inProgress = modules.filter((m) => m.status === 'IN_PROGRESS').length;
+    const total = modules.length;
+    return Math.round(((completed * 1) + (inProgress * 0.5)) / total * 100);
+  };
+
+  const progress = calculateProgress();
 
   if (loading && !facade) return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="animate-pulse text-accent font-bold text-2xl tracking-[0.2em] font-manrope">CARGANDO MAPA...</div>
+      <div className="animate-pulse text-accent font-bold text-2xl tracking-[0.2em] font-manrope">SYNCHRONIZING MAP...</div>
     </div>
   );
 
@@ -143,33 +150,34 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform">
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            <span className="font-bold text-sm tracking-widest uppercase">Volver al Proyecto</span>
+            <span className="font-bold text-[10px] tracking-widest uppercase">Volver al Proyecto</span>
           </Link>
           <ThemeToggle />
         </nav>
 
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
-          <div className="space-y-2">
-            <div className="flex gap-2 text-[10px] tracking-widest uppercase text-accent font-bold">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-[9px] tracking-[0.3em] uppercase text-accent font-black">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>{project?.name}</span>
-              <span className="text-muted opacity-50">/</span>
+              <span className="text-muted opacity-30">/</span>
               <span>Fachada</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold font-manrope tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-black font-manrope tracking-tight leading-none truncate max-w-2xl">
               {facade?.name}
             </h1>
-            <p className="text-muted font-medium">Gestión de avance de instalación de módulos por nivel.</p>
+            <p className="text-muted font-medium text-sm">Panel de control de instalación y seguimiento técnico.</p>
           </div>
           
-          <div className="flex flex-col items-end gap-3 p-6 bg-card border border-card-border rounded-3xl shadow-xl backdrop-blur-xl shrink-0 min-w-[280px]">
-            <span className="text-sm text-foreground/60 uppercase tracking-widest font-bold">Progreso de Fachada</span>
+          <div className="flex flex-col items-end gap-3 p-6 bg-card border border-card-border rounded-[2rem] shadow-2xl backdrop-blur-2xl shrink-0 min-w-[300px]">
+            <span className="text-[10px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Ponderado</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-6xl font-black font-manrope text-accent">{progress}%</span>
-              <span className="text-muted font-bold">Instalado</span>
+              <span className="text-6xl font-black font-manrope text-accent tabular-nums tracking-tighter">{progress}%</span>
+              <span className="text-muted font-black uppercase text-[10px] tracking-widest">Real</span>
             </div>
-            <div className="w-full bg-background border border-card-border h-3 rounded-full overflow-hidden mt-2">
+            <div className="w-full bg-background border border-card-border h-3.5 rounded-full overflow-hidden mt-2 p-0.5">
               <div 
-                className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.5)]" 
+                className="bg-accent h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(59,130,246,0.6)]" 
                 style={{ width: `${progress}%` }} 
               />
             </div>
@@ -177,26 +185,31 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
         </header>
 
         {modules.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-20 border-2 border-dashed border-card-border rounded-[3rem] bg-card/5">
-             <div className="w-24 h-24 mb-6 bg-accent/10 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent underline decoration-accent/30"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <div className="flex flex-col items-center justify-center p-24 border-[3px] border-dashed border-card-border/50 rounded-[4rem] bg-card/5">
+             <div className="w-24 h-24 mb-8 bg-accent/10 rounded-[2.5rem] flex items-center justify-center border border-accent/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
              </div>
-             <h2 className="text-2xl font-bold mb-4 opacity-80">La fachada está vacía</h2>
-             <p className="text-muted mb-8 max-w-md text-center">
-               Esta fachada aún no tiene módulos registrados. Haz clic abajo para generar automáticamente los {facade?.level_count * facade?.modules_per_level} módulos configurados.
+             <h2 className="text-3xl font-black mb-4 font-manrope">Fachada Desocupada</h2>
+             <p className="text-muted mb-10 max-w-md text-center text-lg leading-relaxed font-medium">
+               Genera automáticamente la malla de <span className="text-foreground font-bold">{facade?.level_count * facade?.modules_per_level}</span> módulos para este sector del edificio.
              </p>
              <button 
               onClick={handleInitializeFacade}
               disabled={isInitializing}
-              className="bg-accent hover:brightness-110 disabled:bg-muted text-white font-bold py-4 px-12 rounded-2xl transition-all shadow-xl shadow-accent/20 active:scale-95 flex items-center gap-3"
+              className="bg-accent hover:brightness-110 disabled:bg-muted text-white font-black py-4 px-12 rounded-2xl transition-all shadow-[0_20px_40px_rgba(59,130,246,0.25)] active:scale-95 flex items-center gap-4 uppercase tracking-[0.2em] text-xs"
              >
                {isInitializing ? (
                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-               ) : '🚀 Inicializar Módulos'}
+               ) : (
+                 <>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+                   <span>Inicializar Fachada</span>
+                 </>
+               )}
              </button>
           </div>
         ) : (
-          <section className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <section className="grid grid-cols-1 lg:grid-cols-4 gap-10">
             <div className="lg:col-span-3">
               <FacadeMap 
                 modules={modules} 
@@ -206,58 +219,62 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               />
             </div>
             
-            <aside className="space-y-6">
-              <div className="p-6 bg-card border border-card-border rounded-3xl shadow-xl">
-                <h3 className="text-xl font-bold font-manrope mb-6 border-b border-card-border pb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Estado en Vivo
+            <aside className="space-y-8">
+              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl">
+                <h3 className="text-xl font-bold font-manrope mb-8 border-b border-card-border pb-4 flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" /> 
+                  <span className="uppercase tracking-widest text-xs font-black">Sincronización</span>
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div className="flex items-center gap-4 group">
-                    <div className="w-8 h-8 rounded-lg bg-module-pending border-2 border-white shadow-lg transition-transform group-hover:scale-110" />
+                    <div className="w-10 h-10 rounded-xl bg-module-pending border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
                     <div className="flex-1">
-                      <p className="text-sm font-bold">No Instalado</p>
-                      <p className="text-[10px] uppercase tracking-widest text-muted">Pendiente de inicio</p>
+                      <p className="text-xs font-black uppercase tracking-widest italic">Pendiente</p>
+                      <p className="text-[10px] text-muted font-bold">Módulo no iniciado (0 pts)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 group">
-                    <div className="w-8 h-8 rounded-lg bg-module-progress border-2 border-white shadow-lg transition-transform group-hover:scale-110" />
+                    <div className="w-10 h-10 rounded-xl bg-module-progress border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
                     <div className="flex-1">
-                      <p className="text-sm font-bold">En Proceso</p>
-                      <p className="text-[10px] uppercase tracking-widest text-muted">Instalación activa</p>
+                      <p className="text-xs font-black uppercase tracking-widest italic text-amber-500">En Ejecución</p>
+                      <p className="text-[10px] text-muted font-bold">Instalación activa (0.5 pts)</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 group">
-                    <div className="w-8 h-8 rounded-lg bg-module-completed border-2 border-white shadow-lg transition-transform group-hover:scale-110" />
+                    <div className="w-10 h-10 rounded-xl bg-module-completed border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
                     <div className="flex-1">
-                      <p className="text-sm font-bold">Instalado</p>
-                      <p className="text-[10px] uppercase tracking-widest text-muted">Módulo terminado</p>
+                      <p className="text-xs font-black uppercase tracking-widest italic text-green-500">Certificado</p>
+                      <p className="text-[10px] text-muted font-bold">Listo para entrega (1.0 pts)</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 bg-card border border-card-border rounded-3xl shadow-xl">
-                <h3 className="text-xl font-bold font-manrope mb-6 border-b border-card-border pb-3">Resumen Métrico</h3>
+              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl">
+                <h3 className="text-xl font-bold font-manrope mb-8 border-b border-card-border pb-4 uppercase tracking-widest text-xs font-black">Estadísticas</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 rounded-2xl bg-background/50 border border-card-border">
-                    <span className="text-xs uppercase tracking-widest font-bold text-muted">Total</span>
-                    <span className="font-black text-xl">{modules.length}</span>
+                  <div className="flex justify-between items-center p-4 rounded-2xl bg-background/50 border border-card-border">
+                    <span className="text-[10px] uppercase tracking-widest font-black text-muted">Total Unidades</span>
+                    <span className="font-black text-2xl tabular-nums">{modules.length}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 rounded-2xl bg-green-500/5 border border-green-500/10">
-                    <span className="text-xs uppercase tracking-widest font-bold text-green-500/80">Listos</span>
-                    <span className="font-black text-xl text-green-500">{modules.filter(m => m.status === 'COMPLETED').length}</span>
+                  <div className="flex justify-between items-center p-4 rounded-2xl bg-green-500/5 border border-green-500/10">
+                    <span className="text-[10px] uppercase tracking-widest font-black text-green-500/80">Terminados</span>
+                    <span className="font-black text-2xl tabular-nums text-green-500">{modules.filter(m => m.status === 'COMPLETED').length}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 rounded-2xl bg-amber-500/5 border border-amber-500/10">
-                    <span className="text-xs uppercase tracking-widest font-bold text-amber-500/80">Activos</span>
-                    <span className="font-black text-xl text-amber-500">{modules.filter(m => m.status === 'IN_PROGRESS').length}</span>
+                  <div className="flex justify-between items-center p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+                    <span className="text-[10px] uppercase tracking-widest font-black text-amber-500/80">En Proceso</span>
+                    <span className="font-black text-2xl tabular-nums text-amber-500">{modules.filter(m => m.status === 'IN_PROGRESS').length}</span>
                   </div>
                 </div>
               </div>
               
-              <div className="p-6 bg-accent rounded-3xl text-white shadow-xl shadow-accent/20">
-                <p className="text-[10px] uppercase tracking-widest font-bold opacity-70 mb-1">Nota de Control</p>
-                <p className="text-sm font-medium leading-relaxed">
-                  Los cambios se sincronizan en tiempo real con la nube para todo el equipo de obra.
+              <div className="p-6 bg-accent rounded-[2rem] text-white shadow-[0_20px_40px_rgba(59,130,246,0.2)]">
+                <div className="flex items-center gap-2 mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-black opacity-80">Info Técnica</p>
+                </div>
+                <p className="text-sm font-bold leading-relaxed">
+                  El cálculo de avance considera los módulos en proceso como un 50% de unidad terminada para una métrica más precisa del esfuerzo en obra.
                 </p>
               </div>
             </aside>

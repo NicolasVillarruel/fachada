@@ -13,8 +13,10 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchProjectInfo = useCallback(async () => {
+  const fetchProjectWithFacadesProgress = useCallback(async () => {
     setLoading(true);
+    
+    // Fetch Project Info
     const { data: projectData } = await supabase
       .from('projects')
       .select('*')
@@ -25,19 +27,43 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       setProject(projectData);
     }
 
+    // Fetch Facades
     const { data: facadesData } = await supabase
       .from('facades')
       .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: true });
 
-    setFacades(facadesData || []);
+    if (facadesData) {
+      // Calculate progress for each facade
+      const facadesWithProgress = await Promise.all(facadesData.map(async (facade) => {
+        const { data: modulesData } = await supabase
+          .from('modules')
+          .select('status')
+          .eq('facade_id', facade.id);
+
+        const modules = modulesData || [];
+        const total = modules.length;
+
+        if (total === 0) return { ...facade, progress: 0 };
+
+        const completed = modules.filter(m => m.status === 'COMPLETED').length;
+        const inProgress = modules.filter(m => m.status === 'IN_PROGRESS').length;
+
+        // Weighted formula
+        const weightedProgress = Math.round(((completed * 1) + (inProgress * 0.5)) / total * 100);
+        
+        return { ...facade, progress: weightedProgress };
+      }));
+      setFacades(facadesWithProgress);
+    }
+
     setLoading(false);
   }, [projectId]);
 
   useEffect(() => {
-    fetchProjectInfo();
-  }, [fetchProjectInfo]);
+    fetchProjectWithFacadesProgress();
+  }, [fetchProjectWithFacadesProgress]);
 
   const handleAddFacade = async (formData: any) => {
     const { data, error } = await supabase
@@ -50,13 +76,13 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       alert('Error al crear la fachada.');
     } else {
       setIsModalOpen(false);
-      fetchProjectInfo();
+      fetchProjectWithFacadesProgress();
     }
   };
 
   if (loading && !project) return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="animate-pulse text-accent font-bold text-2xl tracking-[0.2em] font-manrope">CARGANDO PROYECTO...</div>
+      <div className="animate-pulse text-accent font-bold text-2xl tracking-[0.2em] font-manrope uppercase">Sincronizando Detalles...</div>
     </div>
   );
 
@@ -64,89 +90,116 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
     <main className="min-h-screen bg-background text-foreground p-4 md:p-12 font-inter transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <nav className="mb-12 flex justify-between items-center bg-card/40 border border-card-border p-4 rounded-2xl backdrop-blur-sm">
-          <Link href="/" className="flex items-center gap-2 text-muted hover:text-foreground transition-colors group">
+          <Link href="/" className="flex items-center gap-2 text-muted hover:text-foreground transition-colors group px-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform">
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            <span className="font-bold text-sm tracking-widest uppercase">Volver al Dashboard</span>
+            <span className="font-black text-[10px] tracking-widest uppercase">Volver al Dashboard</span>
           </Link>
           <ThemeToggle />
         </nav>
 
-        <header className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <div className="inline-block px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full text-accent text-xs font-bold tracking-[0.2em] uppercase">
-              DETALLE DEL PROYECTO
+        <header className="mb-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-accent text-[10px] font-black tracking-[0.3em] uppercase">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              Sectorización de Obra
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold font-manrope tracking-tight leading-tight">
+            
+            <h1 className="text-4xl md:text-6xl font-black font-manrope tracking-tighter leading-none line-clamp-3">
               {project?.name}
             </h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-lg text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted font-bold">Ubicación</p>
-                  <p className="font-medium">{project?.address || 'Sin dirección registrada'}</p>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-muted font-black mb-1">Ubicación Actual</p>
+                  <p className="font-bold text-lg leading-tight">{project?.address || 'Sin dirección'}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-lg text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
                 <div>
-                  <p className="text-[10px] tracking-widest uppercase text-muted font-bold">Entrega Estimada</p>
-                  <p className="font-medium text-accent">{project?.delivery_date || 'TBD'}</p>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-muted font-black mb-1">Cierre de Proyecto</p>
+                  <p className="font-black text-lg text-accent leading-tight">{project?.delivery_date || 'TBD'}</p>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="hidden md:block relative h-64 rounded-[3rem] overflow-hidden border-[10px] border-card shadow-2xl">
+          <div className="relative h-80 rounded-[3.5rem] overflow-hidden border-[12px] border-card shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] group">
             <img 
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
               alt={project?.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
             />
+            <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           </div>
         </header>
 
-        <section className="space-y-8">
-          <div className="flex justify-between items-end border-b border-card-border pb-6">
-            <div>
-              <h2 className="text-2xl font-bold font-manrope">Fachadas del Edificio</h2>
-              <p className="text-muted text-sm mt-1">Selecciona una fachada para gestionar sus paneles.</p>
+        <section className="space-y-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-8 gap-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black font-manrope tracking-tight">Estructura de Fachadas</h2>
+              <p className="text-muted font-medium">Control modularizado por frentes de trabajo.</p>
             </div>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="bg-foreground text-background font-bold py-3 px-8 rounded-2xl hover:brightness-110 transition-all flex items-center gap-2 shadow-lg active:scale-95"
+              className="bg-foreground text-background font-black py-4 px-10 rounded-2xl hover:brightness-110 transition-all flex items-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-xs"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Agregar Fachada</span>
+              <span>Nueva Fachada</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             {facades.map((facade) => (
               <Link 
                 key={facade.id} 
                 href={`/projects/${projectId}/facades/${facade.id}`}
                 className="group"
               >
-                <div className="bg-card border border-card-border p-6 rounded-3xl hover:border-accent hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent underline"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 font-manrope">{facade.name}</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted uppercase tracking-widest text-[10px] font-bold">Configuración</span>
-                      <span className="font-semibold">{facade.level_count} Niveles × {facade.modules_per_level} Módulos</span>
+                <div className="bg-card border border-card-border p-8 rounded-[2.5rem] hover:border-accent/40 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between">
+                  <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-4">
+                    <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted uppercase tracking-widest text-[10px] font-bold">Total Paneles</span>
-                      <span className="px-2.5 py-0.5 bg-accent/10 text-accent rounded-full font-bold">{facade.level_count * facade.modules_per_level}</span>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-2xl font-black mb-6 font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-10">
+                      {facade.name}
+                    </h3>
+                    
+                    <div className="space-y-5">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end">
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
+                          <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
+                        </div>
+                        <div className="w-full bg-background border border-card-border h-2 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
+                            style={{ width: `${facade.progress}%` }} 
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 pt-2">
+                        <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
+                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Estructura</p>
+                          <p className="text-xs font-bold">{facade.level_count} Niveles</p>
+                        </div>
+                        <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
+                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Densidad</p>
+                          <p className="text-xs font-bold">{facade.modules_per_level} Mod/Niv</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -154,8 +207,12 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             ))}
             
             {facades.length === 0 && (
-              <div className="col-span-full py-20 text-center border-2 border-dashed border-card-border rounded-3xl bg-card/5">
-                <p className="text-muted font-medium opacity-60">Aún no hay fachadas configuradas para este proyecto.</p>
+              <div className="col-span-full py-32 text-center border-[3px] border-dashed border-card-border/50 rounded-[3.5rem] bg-card/5 backdrop-blur-sm">
+                <div className="w-20 h-20 bg-muted/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-muted opacity-40"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                </div>
+                <p className="text-muted font-bold tracking-widest uppercase text-[10px] opacity-60">Configuración Pendiente</p>
+                <p className="text-lg font-medium text-muted mt-2">No se han registrado frentes de trabajo.</p>
               </div>
             )}
           </div>
