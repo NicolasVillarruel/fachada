@@ -114,14 +114,32 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     setModules(prev => prev.map(m => (m.id === module.id ? { ...m, status: nextStatus } : m)));
 
     // Update Supabase
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('modules')
       .update({ status: nextStatus, updated_at: new Date().toISOString() })
       .eq('id', module.id);
 
-    if (error) {
-      console.error('Error updating module:', error);
+    if (updateError) {
+      console.error('Error updating module:', updateError);
       fetchFacadeData(); // Revert on error
+      return;
+    }
+
+    // Log the change in status_logs
+    const { error: logError } = await supabase
+      .from('status_logs')
+      .insert([
+        {
+          module_id: module.id,
+          old_status: module.status,
+          new_status: nextStatus,
+        }
+      ]);
+
+    if (logError) {
+      console.error('Error creating status log:', logError);
+      // We don't revert the status update even if logging fails, 
+      // but we log the error for debugging.
     }
   };
 
@@ -169,15 +187,15 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
             <p className="text-muted font-medium text-sm">Panel de control de instalación y seguimiento técnico.</p>
           </div>
           
-          <div className="flex flex-col items-end gap-3 p-6 bg-card border border-card-border rounded-[2rem] shadow-2xl backdrop-blur-2xl shrink-0 min-w-[300px]">
+          <div className="flex flex-col items-end gap-3 p-6 bg-card border-l-8 border-brand-blue rounded-[2rem] shadow-2xl backdrop-blur-2xl shrink-0 min-w-[300px]">
             <span className="text-[10px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Ponderado</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-6xl font-black font-manrope text-accent tabular-nums tracking-tighter">{progress}%</span>
+              <span className="text-6xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
               <span className="text-muted font-black uppercase text-[10px] tracking-widest">Real</span>
             </div>
-            <div className="w-full bg-background border border-card-border h-3.5 rounded-full overflow-hidden mt-2 p-0.5">
+            <div className="w-full bg-slate-100 dark:bg-slate-800 border border-card-border h-3.5 rounded-full overflow-hidden mt-2 p-0.5">
               <div 
-                className="bg-accent h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(59,130,246,0.6)]" 
+                className="bg-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_4px_12px_rgba(29,58,132,0.3)]" 
                 style={{ width: `${progress}%` }} 
               />
             </div>

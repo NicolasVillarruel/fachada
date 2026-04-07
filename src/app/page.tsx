@@ -129,8 +129,8 @@ export default function Dashboard() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
           <div>
             <div className="flex items-center gap-4 mb-2">
-              <div className="p-3 bg-accent/10 rounded-2xl border border-accent/20 shadow-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <div className="p-3 bg-brand-purple/10 rounded-2xl border border-brand-purple/20 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--brand-purple)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold font-manrope tracking-tight">
                 Gestión de <span className="underline decoration-accent/30 underline-offset-8">Proyectos</span>
@@ -178,7 +178,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <ProjectCard 
                 key={project.id}
                 id={project.id}
@@ -189,6 +189,7 @@ export default function Dashboard() {
                 image_url={project.image_url}
                 progress={project.progress}
                 onEdit={openEditModal}
+                index={index}
               />
             ))}
           </div>

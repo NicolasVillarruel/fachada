@@ -11,15 +11,25 @@
 }
 
 :root {
-  --background: #f8fafc;
-  --foreground: #020617;
+  --background: #f1f5f9; /* Slate 100 for a cleaner look */
+  --foreground: #0f172a;
   --card: #ffffff;
   --card-border: #e2e8f0;
   --muted: #64748b;
-  --accent: #3b82f6;
-  --module-pending: #ef4444;
-  --module-progress: #f59e0b;
-  --module-completed: #22c55e;
+  
+  /* Brand Palette */
+  --brand-purple: #844ea3;
+  --brand-blue: #1d3a84;
+  --brand-green: #59a779;
+  --brand-yellow: #fabf2a;
+  --brand-pink: #d52974;
+  --brand-orange: #f1762a;
+
+  /* Semantic Mapping */
+  --accent: var(--brand-blue);
+  --module-pending: var(--brand-orange);
+  --module-progress: var(--brand-yellow);
+  --module-completed: var(--brand-green);
 }
 
 .dark {
@@ -28,18 +38,31 @@
   --card: #0f172a;
   --card-border: #1e293b;
   --muted: #94a3b8;
-  --accent: #3b82f6;
+  --accent: #3b82f6; /* Keep default bright blue for dark mode for better contrast */
+  
+  --module-pending: var(--brand-orange);
+  --module-progress: var(--brand-yellow);
+  --module-completed: var(--brand-green);
 }
 
 @theme inline {
   --font-manrope: 'Manrope', sans-serif;
   --font-inter: 'Inter', sans-serif;
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-border: var(--card-border);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-green: var(--brand-green);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-orange: var(--brand-orange);
+
   --color-module-pending: var(--module-pending);
   --color-module-progress: var(--module-progress);
   --color-module-completed: var(--module-completed);
@@ -52,37 +75,29 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Base styles for headers to ensure consistency */
-h1 {
-  @apply font-bold font-manrope tracking-tight;
-}
-
-h2 {
-  @apply font-bold font-manrope tracking-tight;
-}
-
-h3 {
-  @apply font-bold font-manrope;
-}
+h1 { @apply font-bold font-manrope tracking-tight; }
+h2 { @apply font-bold font-manrope tracking-tight; }
+h3 { @apply font-bold font-manrope; }
 
 .glass-effect {
   @apply bg-card/60 border border-card-border backdrop-blur-xl;
 }
 
+/* Custom card accents */
+.card-accent-purple { border-top: 4px solid var(--brand-purple); }
+.card-accent-blue { border-top: 4px solid var(--brand-blue); }
+.card-accent-green { border-top: 4px solid var(--brand-green); }
+.card-accent-yellow { border-top: 4px solid var(--brand-yellow); }
+.card-accent-pink { border-top: 4px solid var(--brand-pink); }
+.card-accent-orange { border-top: 4px solid var(--brand-orange); }
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--card-border);
   border-radius: 10px;
 }
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--muted); }
