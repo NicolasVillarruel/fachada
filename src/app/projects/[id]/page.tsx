@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import FacadeModal from '@/components/FacadeModal';
+import ProjectAnalytics from '@/components/ProjectAnalytics';
+import { calculateProjectAnalytics } from '@/lib/analytics';
 
 export default function ProjectDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = use(params);
@@ -12,6 +14,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   const [facades, setFacades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   const fetchProjectWithFacadesProgress = useCallback(async () => {
     setLoading(true);
@@ -25,6 +28,28 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
     if (projectData) {
       setProject(projectData);
+    }
+
+    // Fetch All Modules for this project (to calculate analytics)
+    const { data: allModules } = await supabase
+      .from('modules')
+      .select('id, status')
+      .eq('project_id', projectId);
+
+    // Fetch All Status Logs for this project
+    if (allModules && allModules.length > 0) {
+      const moduleIds = allModules.map(m => m.id);
+      
+      const { data: allLogs } = await supabase
+        .from('status_logs')
+        .select('*')
+        .in('module_id', moduleIds)
+        .order('created_at', { ascending: true });
+
+      if (projectData && allModules) {
+        const analytics = calculateProjectAnalytics(projectData, allModules, allLogs || []);
+        setAnalyticsData(analytics);
+      }
     }
 
     // Fetch Facades
@@ -141,6 +166,13 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           </div>
         </header>
+
+        {/* Analytics Section */}
+        {analyticsData && (
+          <section className="mb-24">
+            <ProjectAnalytics data={analyticsData} />
+          </section>
+        )}
 
         <section className="space-y-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-8 gap-6">
