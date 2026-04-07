@@ -106,33 +106,33 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
               Sectorización de Obra
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-black font-manrope tracking-tighter leading-none line-clamp-3">
+            <h1 className="text-2xl md:text-3xl font-black font-manrope tracking-tighter leading-tight line-clamp-2">
               {project?.name}
             </h1>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-lg text-accent">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 <div>
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-muted font-black mb-1">Ubicación Actual</p>
-                  <p className="font-bold text-lg leading-tight">{project?.address || 'Sin dirección'}</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Ubicación Actual</p>
+                  <p className="font-bold text-sm leading-tight">{project?.address || 'Sin dirección'}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-lg text-accent">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
                 <div>
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-muted font-black mb-1">Cierre de Proyecto</p>
-                  <p className="font-black text-lg text-accent leading-tight">{project?.delivery_date || 'TBD'}</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Cierre de Proyecto</p>
+                  <p className="font-black text-sm text-accent leading-tight">{project?.delivery_date || 'TBD'}</p>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="relative h-80 rounded-[3.5rem] overflow-hidden border-[12px] border-card shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] group">
+          <div className="relative h-48 rounded-[2rem] overflow-hidden border-[8px] border-card shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] group">
             <img 
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
               alt={project?.name}
@@ -164,15 +164,15 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                 href={`/projects/${projectId}/facades/${facade.id}`}
                 className="group"
               >
-                <div className="bg-card border border-card-border p-8 rounded-[2.5rem] hover:border-accent/40 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-4">
-                    <div className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <div className="bg-card border border-card-border p-6 rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between group-hover:-translate-y-1">
+                  <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-3">
+                    <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
                   </div>
                   
                   <div>
-                    <h3 className="text-2xl font-black mb-6 font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-10">
+                    <h3 className="text-xl font-black mb-4 font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-8">
                       {facade.name}
                     </h3>
                     

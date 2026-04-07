@@ -187,15 +187,15 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
             <p className="text-muted font-medium text-sm">Panel de control de instalación y seguimiento técnico.</p>
           </div>
           
-          <div className="flex flex-col items-end gap-3 p-6 bg-card border-l-8 border-brand-blue rounded-[2rem] shadow-2xl backdrop-blur-2xl shrink-0 min-w-[300px]">
-            <span className="text-[10px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Ponderado</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-6xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
-              <span className="text-muted font-black uppercase text-[10px] tracking-widest">Real</span>
+          <div className="flex flex-col items-end gap-2 p-5 bg-card border-l-4 border-brand-blue rounded-2xl shadow-xl backdrop-blur-2xl shrink-0 min-w-[240px]">
+            <span className="text-[9px] text-foreground/60 uppercase tracking-[0.15em] font-black">Progreso Ponderado</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-4xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
+              <span className="text-muted font-black uppercase text-[8px] tracking-widest">Real</span>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-800 border border-card-border h-3.5 rounded-full overflow-hidden mt-2 p-0.5">
+            <div className="w-full bg-slate-100 dark:bg-slate-800 border border-card-border h-2 rounded-full overflow-hidden mt-1 p-0.5">
               <div 
-                className="bg-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_4px_12px_rgba(29,58,132,0.3)]" 
+                className="bg-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_2px_8px_rgba(29,58,132,0.2)]" 
                 style={{ width: `${progress}%` }} 
               />
             </div>
@@ -261,7 +261,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                   <div className="flex items-center gap-4 group">
                     <div className="w-10 h-10 rounded-xl bg-module-completed border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
                     <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest italic text-green-500">Certificado</p>
+                      <p className="text-xs font-black uppercase tracking-widest italic text-green-500">Terminado</p>
                       <p className="text-[10px] text-muted font-bold">Listo para entrega (1.0 pts)</p>
                     </div>
                   </div>
@@ -286,15 +286,6 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                 </div>
               </div>
               
-              <div className="p-6 bg-accent rounded-[2rem] text-white shadow-[0_20px_40px_rgba(59,130,246,0.2)]">
-                <div className="flex items-center gap-2 mb-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-black opacity-80">Info Técnica</p>
-                </div>
-                <p className="text-sm font-bold leading-relaxed">
-                  El cálculo de avance considera los módulos en proceso como un 50% de unidad terminada para una métrica más precisa del esfuerzo en obra.
-                </p>
-              </div>
             </aside>
           </section>
         )}
