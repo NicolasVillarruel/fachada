@@ -113,7 +113,13 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(date) => format(parseISO(date), 'dd MMM', { locale: es })}
+                tickFormatter={(date) => {
+                  try {
+                    return format(parseISO(date.toString()), 'dd MMM', { locale: es });
+                  } catch (e) {
+                    return date;
+                  }
+                }}
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--color-muted)' }}
@@ -130,7 +136,9 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                   if (active && payload && payload.length) {
                     return (
                       <div className="bg-card/90 backdrop-blur-md border border-card-border p-4 rounded-2xl shadow-2xl">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">{format(parseISO(label), 'EEEE, dd MMMM', { locale: es })}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">
+                          {label ? format(parseISO(label.toString()), 'EEEE, dd MMMM', { locale: es }) : ''}
+                        </p>
                         <div className="space-y-1">
                           <p className="text-sm font-black text-brand-blue flex justify-between gap-4">
                             <span>Avance Real:</span>
