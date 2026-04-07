@@ -8,13 +8,14 @@ const supabase = createClient(
 
 async function seed() {
   const projectId = 'b66b4512-101c-4a51-92ef-6890b953d31a'; // Torre Skyline
-  console.log('Seeding project:', projectId);
+  console.log('Heavy Seeding project (Final fix):', projectId);
 
+  // 1. Get 1000 modules (approx 45% of project)
   const { data: modules } = await supabase
     .from('modules')
     .select('id')
     .eq('project_id', projectId)
-    .limit(50);
+    .limit(1000);
 
   if (!modules || modules.length === 0) {
     console.log('No modules found.');
@@ -25,10 +26,12 @@ async function seed() {
   const startDate = new Date('2026-03-01');
   const today = new Date();
   
-  for (const mod of modules) {
-    const dayOffset = Math.floor(Math.random() * 25);
+  // 2. Generate history
+  for (let i = 0; i < modules.length; i++) {
+    const mod = modules[i];
+    const startDay = Math.floor(Math.random() * 25);
     const inProgressDate = new Date(startDate);
-    inProgressDate.setDate(startDate.getDate() + dayOffset);
+    inProgressDate.setDate(startDate.getDate() + startDay);
 
     if (inProgressDate < today) {
       logs.push({
@@ -38,8 +41,9 @@ async function seed() {
         timestamp: inProgressDate.toISOString()
       });
 
-      if (Math.random() > 0.4) {
-        const finishOffset = dayOffset + Math.floor(Math.random() * 8) + 2;
+      // Finish most of them
+      if (Math.random() > 0.3) {
+        const finishOffset = startDay + Math.floor(Math.random() * 8) + 2;
         const finishDate = new Date(startDate);
         finishDate.setDate(startDate.getDate() + finishOffset);
 
@@ -55,10 +59,20 @@ async function seed() {
     }
   }
 
-  console.log(`Inserting ${logs.length} logs into status_log...`);
-  const { error } = await supabase.from('status_log').insert(logs);
-  if (error) console.error(error);
-  else console.log('Historical seed success!');
+  console.log(`Inserting ${logs.length} logs into status_logs (Plural)...`);
+  
+  const batchSize = 100;
+  for (let i = 0; i < logs.length; i += batchSize) {
+    const batch = logs.slice(i, i + batchSize);
+    const { error } = await supabase.from('status_logs').insert(batch);
+    if (error) {
+      console.error('Batch error:', error);
+      break;
+    }
+    console.log(`Inserted logs ${i} to ${Math.min(i + batchSize, logs.length)}`);
+  }
+  
+  console.log('Final seed complete!');
 }
 
 seed();

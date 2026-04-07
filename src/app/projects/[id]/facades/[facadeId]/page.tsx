@@ -125,9 +125,9 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       return;
     }
 
-    // Log the change in status_log
+    // Log the change in status_logs
     const { error: logError } = await supabase
-      .from('status_log')
+      .from('status_logs')
       .insert([
         {
           module_id: module.id,
