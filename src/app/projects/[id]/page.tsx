@@ -41,10 +41,10 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       const moduleIds = allModules.map(m => m.id);
       
       const { data: allLogs } = await supabase
-        .from('status_logs')
+        .from('status_log')
         .select('*')
         .in('module_id', moduleIds)
-        .order('created_at', { ascending: true });
+        .order('timestamp', { ascending: true });
 
       if (projectData && allModules) {
         const analytics = calculateProjectAnalytics(projectData, allModules, allLogs || []);

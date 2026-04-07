@@ -44,7 +44,7 @@ export function calculateProjectAnalytics(
   // We group logs by date for efficient lookup
   const logsByDate: Record<string, any[]> = {};
   logs.forEach(log => {
-    const dateStr = format(parseISO(log.created_at), 'yyyy-MM-dd');
+    const dateStr = format(parseISO(log.timestamp), 'yyyy-MM-dd');
     if (!logsByDate[dateStr]) logsByDate[dateStr] = [];
     logsByDate[dateStr].push(log);
   });
@@ -56,7 +56,7 @@ export function calculateProjectAnalytics(
   });
 
   // To properly reconstruct, we need logs sorted by time
-  const sortedLogs = [...logs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  const sortedLogs = [...logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
   // We'll iterate from start date to today
   for (let i = 0; i <= daysSinceStart; i++) {
@@ -65,7 +65,7 @@ export function calculateProjectAnalytics(
 
     // Update module states with logs from this day
     sortedLogs.forEach(log => {
-      const logDate = startOfDay(parseISO(log.created_at));
+      const logDate = startOfDay(parseISO(log.timestamp));
       if (format(logDate, 'yyyy-MM-dd') === dateStr) {
         moduleStates[log.module_id] = log.new_status;
       }
