@@ -14,95 +14,132 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   const [facades, setFacades] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingFacade, setEditingFacade] = useState<any>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   const fetchProjectWithFacadesProgress = useCallback(async () => {
     setLoading(true);
     
-    // Fetch Project Info
-    const { data: projectData } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('id', projectId)
-      .single();
+    try {
+      // Fetch Project Info
+      const { data: projectData } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
 
-    if (projectData) {
-      setProject(projectData);
-    }
+      if (projectData) setProject(projectData);
 
-    // Fetch All Modules for this project (to calculate analytics)
-    const { data: allModules } = await supabase
-      .from('modules')
-      .select('id, status')
-      .eq('project_id', projectId);
+      // Fetch Facades
+      const { data: facadesData } = await supabase
+        .from('facades')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true });
 
-    // Fetch All Status Logs for this project
-    if (allModules && allModules.length > 0) {
-      const moduleIds = allModules.map(m => m.id);
-      
-      const { data: allLogs } = await supabase
-        .from('status_logs')
-        .select('*, modules!inner(id, project_id)')
-        .eq('modules.project_id', projectId)
-        .order('changed_at', { ascending: true });
+      if (facadesData) {
+        // Calculate progress for each facade
+        const facadesWithProgress = await Promise.all(facadesData.map(async (facade) => {
+          const { data: modulesData } = await supabase
+            .from('modules')
+            .select('status')
+            .eq('facade_id', facade.id);
 
-      if (projectData && allModules) {
-        const analytics = calculateProjectAnalytics(projectData, allModules, allLogs || []);
-        setAnalyticsData(analytics);
+          const modules = modulesData || [];
+          const total = modules.length;
+          const weightedProgress = total === 0 ? 0 : Math.round(
+            (modules.filter(m => m.status === 'COMPLETED').length * 1 + 
+             modules.filter(m => m.status === 'IN_PROGRESS').length * 0.5) / total * 100
+          );
+          
+          return { ...facade, progress: weightedProgress };
+        }));
+        setFacades(facadesWithProgress);
+
+        // Update Analytics
+        const { data: allModules } = await supabase.from('modules').select('id, status').eq('project_id', projectId);
+        if (projectData && allModules) {
+          const analytics = calculateProjectAnalytics(projectData, allModules, []);
+          setAnalyticsData(analytics);
+        }
       }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+    } finally {
+      setLoading(false);
     }
-
-    // Fetch Facades
-    const { data: facadesData } = await supabase
-      .from('facades')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at', { ascending: true });
-
-    if (facadesData) {
-      // Calculate progress for each facade
-      const facadesWithProgress = await Promise.all(facadesData.map(async (facade) => {
-        const { data: modulesData } = await supabase
-          .from('modules')
-          .select('status')
-          .eq('facade_id', facade.id);
-
-        const modules = modulesData || [];
-        const total = modules.length;
-
-        if (total === 0) return { ...facade, progress: 0 };
-
-        const completed = modules.filter(m => m.status === 'COMPLETED').length;
-        const inProgress = modules.filter(m => m.status === 'IN_PROGRESS').length;
-
-        // Weighted formula
-        const weightedProgress = Math.round(((completed * 1) + (inProgress * 0.5)) / total * 100);
-        
-        return { ...facade, progress: weightedProgress };
-      }));
-      setFacades(facadesWithProgress);
-    }
-
-    setLoading(false);
   }, [projectId]);
 
   useEffect(() => {
     fetchProjectWithFacadesProgress();
   }, [fetchProjectWithFacadesProgress]);
 
-  const handleAddFacade = async (formData: any) => {
-    const { data, error } = await supabase
-      .from('facades')
-      .insert([{ ...formData, project_id: projectId }])
-      .select();
+  const handleSaveFacade = async (formData: any) => {
+    if (editingFacade) {
+      // UPDATE
+      const { error } = await supabase
+        .from('facades')
+        .update(formData)
+        .eq('id', editingFacade.id);
 
-    if (error) {
-      console.error('Error adding facade:', error);
-      alert('Error al crear la fachada.');
+      if (error) {
+        console.error('Error updating facade:', error);
+        alert('Error al actualizar la fachada.');
+      }
     } else {
-      setIsModalOpen(false);
+      // INSERT
+      const { error } = await supabase
+        .from('facades')
+        .insert([{ ...formData, project_id: projectId }]);
+
+      if (error) {
+        console.error('Error adding facade:', error);
+        alert('Error al crear la fachada.');
+      }
+    }
+    
+    setIsModalOpen(false);
+    setEditingFacade(null);
+    fetchProjectWithFacadesProgress();
+  };
+
+  const handleDeleteFacade = async (e: React.MouseEvent, facadeId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!window.confirm('¿Estás seguro de eliminar esta fachada? Se borrarán todos los módulos y el progreso asociado permanentemente.')) return;
+
+    // 1. Delete Modules (Cascade)
+    const { error: modError } = await supabase
+      .from('modules')
+      .delete()
+      .eq('facade_id', facadeId);
+
+    if (modError) {
+      console.error('Error deleting modules:', modError);
+      alert('Error al limpiar módulos.');
+      return;
+    }
+
+    // 2. Delete Facade
+    const { error: facError } = await supabase
+      .from('facades')
+      .delete()
+      .eq('id', facadeId);
+
+    if (facError) {
+      console.error('Error deleting facade:', facError);
+      alert('Error al eliminar la fachada.');
+    } else {
       fetchProjectWithFacadesProgress();
     }
+  };
+
+  const handleEditFacade = (e: React.MouseEvent, facade: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingFacade(facade);
+    setIsModalOpen(true);
   };
 
   if (loading && !project) return (
@@ -181,7 +218,10 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
               <p className="text-muted font-medium">Control modularizado por frentes de trabajo.</p>
             </div>
             <button 
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setEditingFacade(null);
+                setIsModalOpen(true);
+              }}
               className="bg-foreground text-background font-black py-4 px-10 rounded-2xl hover:brightness-110 transition-all flex items-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-xs"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -191,51 +231,70 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             {facades.map((facade) => (
-              <Link 
-                key={facade.id} 
-                href={`/projects/${projectId}/facades/${facade.id}`}
-                className="group"
-              >
-                <div className="bg-card border border-card-border p-6 rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between group-hover:-translate-y-1">
-                  <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-3">
-                    <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <div key={facade.id} className="relative group">
+                <Link href={`/projects/${projectId}/facades/${facade.id}`} className="block h-full">
+                  <div className="bg-card border border-card-border p-6 rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between group-hover:-translate-y-1">
+                    <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-3">
+                      <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-black mb-4 font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-8">
-                      {facade.name}
-                    </h3>
                     
-                    <div className="space-y-5">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-end">
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
-                          <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
-                        </div>
-                        <div className="w-full bg-background border border-card-border h-2 rounded-full overflow-hidden">
-                          <div 
-                            className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
-                            style={{ width: `${facade.progress}%` }} 
-                          />
-                        </div>
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-2">
+                          {facade.name}
+                        </h3>
+                        {/* Hidden context menu button or just always show edit/delete on hover */}
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-4 pt-2">
-                        <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
-                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Estructura</p>
-                          <p className="text-xs font-bold">{facade.level_count} Niveles</p>
+                      <div className="space-y-5">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
+                            <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
+                          </div>
+                          <div className="w-full bg-background border border-card-border h-2 rounded-full overflow-hidden">
+                            <div 
+                              className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
+                              style={{ width: `${facade.progress}%` }} 
+                            />
+                          </div>
                         </div>
-                        <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
-                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Densidad</p>
-                          <p className="text-xs font-bold">{facade.modules_per_level} Mod/Niv</p>
+                        
+                        <div className="grid grid-cols-2 gap-4 pt-2">
+                          <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
+                            <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Estructura</p>
+                            <p className="text-xs font-bold">{facade.level_count} Niveles</p>
+                          </div>
+                          <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
+                            <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Densidad</p>
+                            <p className="text-xs font-bold">{facade.modules_per_level} Mod/Niv</p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                </Link>
+                
+                {/* Actions Overlay for Hover */}
+                <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 scale-90 origin-left group-hover:scale-100 duration-300">
+                  <button 
+                    onClick={(e) => handleEditFacade(e, facade)}
+                    className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-xl transition-all"
+                    title="Editar Fachada"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                  </button>
+                  <button 
+                    onClick={(e) => handleDeleteFacade(e, facade.id)}
+                    className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-red-500 hover:border-red-500/40 shadow-xl transition-all"
+                    title="Eliminar Fachada"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  </button>
                 </div>
-              </Link>
+              </div>
             ))}
             
             {facades.length === 0 && (
@@ -253,8 +312,12 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
       <FacadeModal 
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleAddFacade}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingFacade(null);
+        }}
+        onSave={handleSaveFacade}
+        initialData={editingFacade}
       />
     </main>
   );
