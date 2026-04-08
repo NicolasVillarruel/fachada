@@ -62,6 +62,9 @@ export default function FacadeMap({
     const status = module.status || 'PENDING';
     const color = statusColors[status];
     
+    // Safety check for coordinates
+    if (module.pos_x === undefined || module.pos_y === undefined) return null;
+
     return (
       <div 
         key={module.id}
@@ -69,7 +72,7 @@ export default function FacadeMap({
           e.stopPropagation();
           onModuleClick(module, e);
         }}
-        className="absolute group cursor-pointer z-[30]"
+        className="absolute group cursor-pointer z-[100]"
         style={{ 
           left: `${module.pos_x}%`, 
           top: `${module.pos_y}%`,
@@ -77,10 +80,13 @@ export default function FacadeMap({
         }}
       >
         <div 
-          className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30 animate-in fade-in zoom-in"
-          style={{ backgroundColor: color }}
+          className="w-6 h-6 rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/50 animate-in fade-in zoom-in"
+          style={{ 
+            backgroundColor: color,
+            boxShadow: `0 0 20px ${color}80, 0 0 5px white`
+          }}
         />
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-[8px] font-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/90 text-white text-[9px] font-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[110] border border-white/20 shadow-2xl pointer-events-none">
           L{module.level_number} M{module.module_number}
         </div>
       </div>
