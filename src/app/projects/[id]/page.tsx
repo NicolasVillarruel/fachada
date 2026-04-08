@@ -47,12 +47,19 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
           const modules = modulesData || [];
           const total = modules.length;
+          const pending = modules.filter(m => m.status === 'PENDING').length;
+          const progressCount = modules.filter(m => m.status === 'IN_PROGRESS').length;
+          const completed = modules.filter(m => m.status === 'COMPLETED').length;
+          
           const weightedProgress = total === 0 ? 0 : Math.round(
-            (modules.filter(m => m.status === 'COMPLETED').length * 1 + 
-             modules.filter(m => m.status === 'IN_PROGRESS').length * 0.5) / total * 100
+            (completed * 1 + progressCount * 0.5) / total * 100
           );
           
-          return { ...facade, progress: weightedProgress };
+          return { 
+            ...facade, 
+            progress: weightedProgress,
+            stats: { total, pending, inProgress: progressCount, completed }
+          };
         }));
         setFacades(facadesWithProgress);
 
@@ -291,14 +298,22 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4 pt-2">
-                          <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
-                            <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Estructura</p>
-                            <p className="text-xs font-bold">{facade.level_count} Niveles</p>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
+                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Pendientes</p>
+                            <p className="text-xs font-black text-brand-pink">{facade.stats?.pending || 0}</p>
                           </div>
-                          <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
-                            <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Densidad</p>
-                            <p className="text-xs font-bold">{facade.modules_per_level} Mod/Niv</p>
+                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
+                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">En Proceso</p>
+                            <p className="text-xs font-black text-amber-500">{facade.stats?.inProgress || 0}</p>
+                          </div>
+                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
+                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Terminados</p>
+                            <p className="text-xs font-black text-green-500">{facade.stats?.completed || 0}</p>
+                          </div>
+                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
+                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Total</p>
+                            <p className="text-xs font-black text-foreground">{facade.stats?.total || 0}</p>
                           </div>
                         </div>
                       </div>

@@ -52,6 +52,10 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           status: m.status as ModuleStatus,
           pos_x: m.pos_x,
           pos_y: m.pos_y,
+          display_name: m.display_name,
+          dimensions: m.dimensions,
+          color_code: m.color_code,
+          blueprint_url: m.blueprint_url,
         }));
         setModules(formattedModules);
 
@@ -184,7 +188,24 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       new_status: nextStatus,
     }]);
     
-    setSelectedModule(null);
+    // update current selected module to reflect changes immediately
+    setSelectedModule(prev => prev ? { ...prev, module: { ...prev.module, status: nextStatus } } : null);
+  };
+
+  const updateModuleMetadata = async (moduleId: string, metadata: Partial<Module>) => {
+    const { error } = await supabase
+      .from('modules')
+      .update(metadata)
+      .eq('id', moduleId);
+
+    if (error) {
+      console.error('Error updating metadata:', error);
+      alert('Error al guardar los detalles.');
+    } else {
+      fetchFacadeData();
+      // Also update selected module if it's the one we're editing
+      setSelectedModule(prev => prev && prev.module.id === moduleId ? { ...prev, module: { ...prev.module, ...metadata } } : prev);
+    }
   };
 
   const handleModuleMove = async (moduleId: string, x: number, y: number) => {
@@ -420,6 +441,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           module={selectedModule.module}
           position={{ x: selectedModule.x, y: selectedModule.y }}
           onStatusChange={(status) => updateModuleStatus(selectedModule.module, status)}
+          onUpdateMetadata={(metadata) => updateModuleMetadata(selectedModule.module.id, metadata)}
           onDelete={() => handleDeleteModule(selectedModule.module.id)}
           onClose={() => setSelectedModule(null)}
         />

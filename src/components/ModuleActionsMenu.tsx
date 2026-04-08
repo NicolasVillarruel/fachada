@@ -1,87 +1,154 @@
 'use client';
 
-import React from 'react';
-import { ModuleStatus } from './FacadeMap';
+import React, { useState } from 'react';
+import { Module, ModuleStatus } from './FacadeMap';
 
 interface ModuleActionsMenuProps {
-  module: any;
+  module: Module;
   onStatusChange: (status: ModuleStatus) => void;
+  onUpdateMetadata: (metadata: Partial<Module>) => void;
   onDelete: () => void;
   onClose: () => void;
   position: { x: number; y: number };
 }
 
-export default function ModuleActionsMenu({ module, onStatusChange, onDelete, onClose, position }: ModuleActionsMenuProps) {
+export default function ModuleActionsMenu({ 
+  module, 
+  onStatusChange, 
+  onUpdateMetadata,
+  onDelete, 
+  onClose, 
+  position 
+}: ModuleActionsMenuProps) {
+  const [activeTab, setActiveTab] = useState<'status' | 'info'>('status');
+  const [localData, setLocalData] = useState({
+    display_name: module.display_name || '',
+    dimensions: module.dimensions || '',
+    color_code: module.color_code || '',
+    blueprint_url: module.blueprint_url || '',
+  });
+
+  const handleSaveInfo = () => {
+    onUpdateMetadata(localData);
+  };
+
   return (
     <div 
       className="fixed z-[100] animate-in fade-in zoom-in duration-200"
       style={{ left: position.x, top: position.y }}
     >
-      <div className="bg-card border border-card-border rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)] backdrop-blur-xl p-2 min-w-[180px]">
-        <div className="px-3 py-2 border-b border-card-border mb-2">
-          <p className="text-[10px] font-black uppercase tracking-widest text-muted">Panel Selección</p>
-          <p className="text-sm font-black font-manrope">Nivel {module.level_number} - Mod {module.module_number}</p>
-        </div>
-
-        <div className="space-y-1">
+      <div className="bg-card border border-card-border rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-2xl p-2 min-w-[260px] max-w-[320px] overflow-hidden">
+        {/* Header with Tabs */}
+        <div className="flex border-b border-card-border mb-4">
           <button 
-            onClick={() => onStatusChange('PENDING')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-              module.status === 'PENDING' ? 'bg-brand-pink/10 text-brand-pink' : 'hover:bg-muted/5'
-            }`}
+            onClick={() => setActiveTab('status')}
+            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'status' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-brand-pink" />
-              <span>Pendiente</span>
-            </div>
-            {module.status === 'PENDING' && <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+            Estados
           </button>
-
           <button 
-            onClick={() => onStatusChange('IN_PROGRESS')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-              module.status === 'IN_PROGRESS' ? 'bg-amber-500/10 text-amber-500' : 'hover:bg-muted/5'
-            }`}
+            onClick={() => setActiveTab('info')}
+            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'info' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>En Ejecución</span>
-            </div>
-            {module.status === 'IN_PROGRESS' && <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-          </button>
-
-          <button 
-            onClick={() => onStatusChange('COMPLETED')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-              module.status === 'COMPLETED' ? 'bg-green-500/10 text-green-500' : 'hover:bg-muted/5'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span>Terminado</span>
-            </div>
-            {module.status === 'COMPLETED' && <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+            Información
           </button>
         </div>
 
-        <div className="mt-2 pt-2 border-t border-card-border">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-500/10 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-            <span>Eliminar Módulo</span>
-          </button>
+        <div className="px-3 pb-4">
+          {activeTab === 'status' ? (
+            <div className="space-y-1.5">
+              <div className="mb-4 px-1">
+                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted mb-1">Identificador</p>
+                <p className="text-sm font-black font-manrope">L{module.level_number} - M{module.module_number}</p>
+                {module.display_name && <p className="text-[10px] font-bold text-accent mt-0.5">{module.display_name}</p>}
+              </div>
+
+              {[
+                { id: 'PENDING', label: 'Pendiente', color: 'bg-brand-pink', textColor: 'text-brand-pink', bgColor: 'bg-brand-pink/10' },
+                { id: 'IN_PROGRESS', label: 'En Ejecución', color: 'bg-amber-500', textColor: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+                { id: 'COMPLETED', label: 'Terminado', color: 'bg-green-500', textColor: 'text-green-500', bgColor: 'bg-green-500/10' }
+              ].map((status) => (
+                <button 
+                  key={status.id}
+                  onClick={() => onStatusChange(status.id as ModuleStatus)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                    module.status === status.id ? `${status.bgColor} ${status.textColor} ring-1 ring-inset ring-white/10` : 'hover:bg-muted/10 text-muted'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-2.5 h-2.5 rounded-full ${status.color} shadow-[0_0_10px_rgba(0,0,0,0.2)]`} />
+                    <span>{status.label}</span>
+                  </div>
+                  {module.status === status.id && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </button>
+              ))}
+
+              <div className="mt-6 pt-4 border-t border-card-border">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                  className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  <span>Eliminar Módulo</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-2 duration-300">
+              <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Nombre / ID Panel</label>
+                  <input 
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    placeholder="Ej: P-102-A"
+                    value={localData.display_name}
+                    onChange={(e) => setLocalData({...localData, display_name: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Medidas (mm)</label>
+                  <input 
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    placeholder="Ej: 1200 x 3400"
+                    value={localData.dimensions}
+                    onChange={(e) => setLocalData({...localData, dimensions: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Color / Acabado</label>
+                  <input 
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    placeholder="Ej: RAL 7016"
+                    value={localData.color_code}
+                    onChange={(e) => setLocalData({...localData, color_code: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">URL Plano Módulo</label>
+                  <input 
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    placeholder="https://..."
+                    value={localData.blueprint_url}
+                    onChange={(e) => setLocalData({...localData, blueprint_url: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <button 
+                onClick={handleSaveInfo}
+                className="w-full py-3 bg-foreground text-background font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-xl"
+              >
+                Guardar Cambios
+              </button>
+            </div>
+          )}
         </div>
 
         <button 
           onClick={onClose}
-          className="absolute -top-2 -right-2 w-6 h-6 bg-card border border-card-border rounded-full flex items-center justify-center text-muted hover:text-foreground shadow-lg"
+          className="absolute top-3 right-3 w-8 h-8 bg-card border border-card-border rounded-full flex items-center justify-center text-muted hover:text-foreground shadow-lg hover:rotate-90 transition-all duration-300"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
     </div>

@@ -13,6 +13,11 @@ export interface Module {
   shape_type?: ModuleShape;
   pos_x?: number;
   pos_y?: number;
+  // Metadata fields
+  display_name?: string;
+  dimensions?: string;
+  color_code?: string;
+  blueprint_url?: string;
 }
 
 interface FacadeMapProps {
