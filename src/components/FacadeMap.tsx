@@ -26,9 +26,9 @@ interface FacadeMapProps {
 }
 
 const statusColors: Record<ModuleStatus, string> = {
-  PENDING: '#f97316', // Orange 500
-  IN_PROGRESS: '#f59e0b', // Amber 500
-  COMPLETED: '#22c55e', // Green 500
+  PENDING: 'var(--module-pending)',
+  IN_PROGRESS: 'var(--module-progress)',
+  COMPLETED: 'var(--module-completed)',
 };
 
 export default function FacadeMap({ 

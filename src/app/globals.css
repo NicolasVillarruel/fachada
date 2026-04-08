@@ -23,11 +23,11 @@
   --brand-green: #59a779;
   --brand-yellow: #fabf2a;
   --brand-pink: #d52974;
-  --brand-orange: #f1762a;
+  --brand-orange: #d52974;
 
   /* Semantic Mapping */
   --accent: var(--brand-blue);
-  --module-pending: var(--brand-orange);
+  --module-pending: var(--brand-pink);
   --module-progress: var(--brand-yellow);
   --module-completed: var(--brand-green);
 }

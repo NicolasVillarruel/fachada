@@ -27,11 +27,11 @@ export default function ModuleActionsMenu({ module, onStatusChange, onDelete, on
           <button 
             onClick={() => onStatusChange('PENDING')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-              module.status === 'PENDING' ? 'bg-orange-500/10 text-orange-500' : 'hover:bg-muted/5'
+              module.status === 'PENDING' ? 'bg-brand-pink/10 text-brand-pink' : 'hover:bg-muted/5'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-orange-500" />
+              <div className="w-2 h-2 rounded-full bg-brand-pink" />
               <span>Pendiente</span>
             </div>
             {module.status === 'PENDING' && <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}

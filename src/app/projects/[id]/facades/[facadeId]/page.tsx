@@ -40,7 +40,6 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
 
       if (error) {
         console.error('Error fetching modules:', error);
-        alert(`ERROR DE LECTURA (DB): ${error.message} \nCódigo: ${error.code} \nDetalle: ${error.details}`);
       } else {
         if (modulesData && modulesData.length > 0) {
           console.log("Modules found:", modulesData.length);
@@ -119,11 +118,10 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     
     if (error) {
       console.error('Error adding module:', error);
-      alert(`CRITICAL ERROR (DB): ${error.message} \nCode: ${error.code}`);
+      alert(`Error al guardar: ${error.message}`);
     } else {
       setNextModuleInfo(prev => ({ ...prev, module: prev.module + 1 }));
       await fetchFacadeData();
-      // alert("Módulo guardado correctamente en la nube.");
     }
   };
 
@@ -393,17 +391,6 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                     <span className="text-[10px] uppercase tracking-widest font-black text-amber-500/80">En Proceso</span>
                     <span className="font-black text-2xl tabular-nums text-amber-500">{modules.filter(m => m.status === 'IN_PROGRESS').length}</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Diagnostic Panel - TEMPORARY */}
-              <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-3xl">
-                <p className="text-[10px] font-black uppercase text-red-500 mb-2">Monitor Diagnóstico</p>
-                <div className="space-y-2 font-mono text-[8px] opacity-70">
-                  <p>PID: {projectId}</p>
-                  <p>FID: {facadeId}</p>
-                  <p>MODS: {modules.length}</p>
-                  <p>SYC: {isMappingMode ? 'MAPPING' : 'VIEWING'}</p>
                 </div>
               </div>
               
