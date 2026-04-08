@@ -281,54 +281,41 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   );
 
   return (
-    <main className="p-4 md:p-12 font-inter transition-colors duration-300">
+    <main className="p-4 md:p-12 font-inter">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-end items-center gap-4">
-          {facade?.elevation_url && (
-            <button 
-              onClick={() => {
-                setIsMappingMode(!isMappingMode);
-                setSelectedModule(null);
-              }}
-              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                isMappingMode 
-                ? 'bg-accent text-white shadow-lg shadow-accent/30 ring-4 ring-accent/10' 
-                : 'bg-background border border-card-border hover:bg-muted/10'
-              }`}
-            >
-              {isMappingMode ? '✓ Finalizar Identificación' : '⌖ Modo Identificación'}
-            </button>
-          )}
-        </div>
-
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-[9px] tracking-[0.3em] uppercase text-accent font-black">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+            <div className="flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-accent font-black">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>{project?.name}</span>
-              <span className="text-muted opacity-30">/</span>
-              <span>Fachada</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black font-manrope tracking-tight leading-none truncate max-w-2xl">
+            <h1 className="text-4xl md:text-6xl font-black font-manrope tracking-tight leading-none truncate max-w-2xl">
               {facade?.name}
             </h1>
-            <p className="text-muted font-medium text-sm">Panel de control de instalación y seguimiento técnico.</p>
           </div>
           
-          <div className="flex flex-col items-end gap-2 p-5 bg-card border-l-4 border-brand-blue rounded-2xl shadow-xl backdrop-blur-2xl shrink-0 min-w-[240px]">
-            <span className="text-[9px] text-foreground/60 uppercase tracking-[0.15em] font-black">Progreso Ponderado</span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-4xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
-              <span className="text-muted font-black uppercase text-[8px] tracking-widest">Real</span>
+          <div className="flex flex-col items-end gap-3 p-6 bg-card border border-card-border rounded-3xl shadow-2xl backdrop-blur-3xl shrink-0 min-w-[280px] relative overflow-hidden group/card">
+            <div className="absolute top-[-20%] right-[-10%] opacity-[0.03] group-hover/card:opacity-[0.08] transition-opacity pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
             </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-800 border border-card-border h-2 rounded-full overflow-hidden mt-1 p-0.5">
+            
+            <div className="w-full flex justify-between items-center mb-1">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h7"/><path d="m9 11 3 3L22 4"/><path d="m22 10V4h-6"/></svg>
+                </div>
+                <span className="text-[10px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Real</span>
+              </div>
+              <span className="text-3xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
+            </div>
+
+            <div className="w-full bg-slate-100 dark:bg-slate-900 border border-card-border h-2.5 rounded-full overflow-hidden p-0.5">
               <div 
-                className="bg-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_2px_8px_rgba(29,58,132,0.2)]" 
+                className="bg-gradient-to-r from-brand-blue/80 to-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.3)]" 
                 style={{ width: `${progress}%` }} 
               />
             </div>
           </div>
-        </header>
+        </div>
 
         {isMappingMode && (
           <div className="mb-8 p-6 bg-accent/5 border-2 border-accent/20 rounded-[2rem] flex flex-wrap items-center justify-between gap-6 animate-in slide-in-from-top duration-500">
@@ -384,8 +371,31 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           </div>
         ) : (
           <section className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <div className="lg:col-span-3 overflow-hidden">
-              <FacadeMap 
+            <div className="lg:col-span-3">
+            <div className="mb-4 flex justify-between items-center px-2">
+               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-muted flex items-center gap-2">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent opacity-50"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/></svg>
+                 Plano de Elevación
+               </h2>
+               {facade?.elevation_url && (
+                <button 
+                  onClick={() => {
+                    setIsMappingMode(!isMappingMode);
+                    setSelectedModule(null);
+                  }}
+                  className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-xl ${
+                    isMappingMode 
+                    ? 'bg-accent text-white shadow-accent/20 scale-95 ring-4 ring-accent/5' 
+                    : 'bg-foreground text-background hover:brightness-110'
+                  }`}
+                >
+                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isMappingMode ? 'animate-spin' : ''}><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                   {isMappingMode ? 'Finalizar Mapeo' : 'Modo Identificación'}
+                </button>
+              )}
+            </div>
+            <div className="overflow-hidden rounded-[2.5rem] border border-card-border/50 bg-card/20 shadow-inner">
+               <FacadeMap 
                 modules={modules} 
                 onModuleClick={handleModuleClick} 
                 onImageClick={handleImageClick}
@@ -395,6 +405,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                 elevationUrl={facade?.elevation_url}
                 isMappingMode={isMappingMode}
               />
+            </div>
             </div>
             
             <aside className="space-y-8">

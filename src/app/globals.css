@@ -78,6 +78,15 @@ body {
 h1 { @apply font-bold font-manrope tracking-tight; }
 h2 { @apply font-bold font-manrope tracking-tight; }
 h3 { @apply font-bold font-manrope; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit), sans-serif;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+.font-manrope {
+  font-family: var(--font-outfit), sans-serif;
+}
 
 .glass-effect {
   @apply bg-card/60 border border-card-border backdrop-blur-xl;
@@ -92,8 +101,8 @@ h3 { @apply font-bold font-manrope; }
 .card-accent-orange { border-top: 4px solid var(--brand-orange); }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
