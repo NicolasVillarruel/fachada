@@ -39,7 +39,12 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
 
       if (error) {
         console.error('Error fetching modules:', error);
+        alert(`ERROR DE LECTURA (DB): ${error.message} \nCódigo: ${error.code} \nDetalle: ${error.details}`);
       } else {
+        if (modulesData && modulesData.length > 0) {
+          console.log("Modules found:", modulesData.length);
+        }
+        
         const formattedModules: Module[] = (modulesData || []).map(m => ({
           id: m.id,
           level_number: m.level_number,
@@ -59,6 +64,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           });
         }
       }
+    } else {
+      console.warn("No se encontró la fachada con el ID proporcionado.");
     }
     setLoading(false);
   }, [projectId, facadeId]);
