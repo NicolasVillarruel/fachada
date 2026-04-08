@@ -75,11 +75,40 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   }, [fetchProjectWithFacadesProgress]);
 
   const handleSaveFacade = async (formData: any) => {
+    let finalUrl = formData.elevation_url;
+
+    // Handle File Upload if exists
+    if (formData.file) {
+      const file = formData.file;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}_${Date.now()}.${fileExt}`;
+      const filePath = `${projectId}/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('facade-plans')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Error uploading file:', uploadError);
+        alert('Error al subir el archivo.');
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('facade-plans')
+        .getPublicUrl(filePath);
+      
+      finalUrl = publicUrl;
+    }
+
+    const { file, ...facadeData } = formData;
+    const submissionData = { ...facadeData, elevation_url: finalUrl };
+
     if (editingFacade) {
       // UPDATE
       const { error } = await supabase
         .from('facades')
-        .update(formData)
+        .update(submissionData)
         .eq('id', editingFacade.id);
 
       if (error) {
@@ -90,7 +119,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       // INSERT
       const { error } = await supabase
         .from('facades')
-        .insert([{ ...formData, project_id: projectId }]);
+        .insert([{ ...submissionData, project_id: projectId }]);
 
       if (error) {
         console.error('Error adding facade:', error);

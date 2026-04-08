@@ -103,12 +103,13 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       pos_y: y,
     };
 
-    const { data, error } = await supabase.from('modules').insert([newModule]).select();
+    const { error } = await supabase.from('modules').insert([newModule]);
     
     if (error) {
       console.error('Error adding module:', error);
-      alert('Error al posicionar el módulo. Verifica que hayas ejecutado la migración SQL.');
+      alert('Error al posicionar el módulo. Verifica que el ID no esté duplicado.');
     } else {
+      // Auto-increment module number within the same level
       setNextModuleInfo(prev => ({ ...prev, module: prev.module + 1 }));
       fetchFacadeData();
     }
