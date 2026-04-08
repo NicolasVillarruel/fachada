@@ -42,7 +42,6 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           level_number: m.level_number,
           module_number: m.module_number,
           status: m.status as ModuleStatus,
-          shape_type: m.shape_type as any, // Leemos la forma real de la base de datos
         }));
         setModules(formattedModules);
       }
@@ -80,23 +79,14 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     setIsInitializing(true);
     
     const initialModules = [];
-    const shapes: any[] = ['RECT_V', 'RECT_H', 'CIRCLE', 'TRIANGLE_UP', 'TRIANGLE_DOWN', 'TRAPEZOID'];
-    
     for (let l = 1; l <= facade.level_count; l++) {
       for (let m = 1; m <= facade.modules_per_level; m++) {
-        // Determinamos la forma: si la fachada tiene MIXED o no está definida, 
-        // usamos un patrón rotativo para la prueba visual permanente.
-        const shapeToUse = facade.shape === 'MIXED' || !facade.shape 
-          ? shapes[m % shapes.length] 
-          : facade.shape;
-
         initialModules.push({
           project_id: projectId,
           facade_id: facadeId,
           level_number: l,
           module_number: m,
           status: 'PENDING',
-          shape_type: shapeToUse,
         });
       }
     }
