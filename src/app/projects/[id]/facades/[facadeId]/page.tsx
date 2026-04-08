@@ -187,6 +187,21 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     setSelectedModule(null);
   };
 
+  const handleModuleMove = async (moduleId: string, x: number, y: number) => {
+    // Update local state for immediate feedback
+    setModules(prev => prev.map(m => (m.id === moduleId ? { ...m, pos_x: x, pos_y: y } : m)));
+
+    const { error } = await supabase
+      .from('modules')
+      .update({ pos_x: x, pos_y: y })
+      .eq('id', moduleId);
+
+    if (error) {
+      console.error('Error moving module:', error);
+      fetchFacadeData();
+    }
+  };
+
   const handleDeleteModule = async (moduleId: string) => {
     if (!window.confirm('¿Eliminar este punto de la fachada?')) return;
 
@@ -200,7 +215,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       alert('Error al eliminar el módulo.');
     } else {
       setSelectedModule(null);
-      // fetchFacadeData() is triggered by subscription
+      await fetchFacadeData();
     }
   };
 
@@ -338,6 +353,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                 modules={modules} 
                 onModuleClick={handleModuleClick} 
                 onImageClick={handleImageClick}
+                onModuleMove={handleModuleMove}
                 levels={facade?.level_count} 
                 modulesPerLevel={facade?.modules_per_level} 
                 elevationUrl={facade?.elevation_url}
