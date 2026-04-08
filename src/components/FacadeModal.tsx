@@ -14,6 +14,7 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
     name: '',
     level_count: 10,
     modules_per_level: 15,
+    shape: 'RECT_V' as any,
   });
 
   useEffect(() => {
@@ -22,12 +23,14 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
         name: initialData.name || '',
         level_count: initialData.level_count || 10,
         modules_per_level: initialData.modules_per_level || 15,
+        shape: initialData.shape || 'RECT_V',
       });
     } else {
       setFormData({
         name: '',
         level_count: 10,
         modules_per_level: 15,
+        shape: 'RECT_V',
       });
     }
   }, [initialData, isOpen]);
@@ -101,6 +104,37 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M3 7h18"/><path d="M3 14h18"/><path d="M7 21V7"/><path d="M12 21V7"/><path d="M17 21V7"/></svg>
                   </div>
               </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted">Geometría de Módulos</label>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {[
+                { id: 'RECT_V', label: 'Rect V', icon: 'M4 4h16v16H4z' },
+                { id: 'RECT_H', label: 'Rect H', icon: 'M4 8h16v8H4z' },
+                { id: 'CIRCLE', label: 'Círculo', icon: 'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z' },
+                { id: 'TRIANGLE_UP', label: 'Triang ▲', icon: 'M12 2 2 22h20Z' },
+                { id: 'TRIANGLE_DOWN', label: 'Triang ▼', icon: 'M12 22 22 2 2 2Z' },
+                { id: 'TRAPEZOID', label: 'Trapecio', icon: 'M6 4h12l4 16H2Z' },
+                { id: 'MIXED', label: 'Mezclado', icon: 'M4 4h7v7H4zm9 0h7v7h-7zm0 9h7v7h-7zm-9 0h7v7H4z' },
+              ].map((shape) => (
+                <button
+                  key={shape.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, shape: shape.id })}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${
+                    formData.shape === shape.id 
+                      ? 'border-accent bg-accent/5 text-accent' 
+                      : 'border-card-border bg-background hover:border-accent/30'
+                  }`}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={shape.icon} />
+                  </svg>
+                  <span className="text-[8px] font-black uppercase tracking-tighter leading-none">{shape.label}</span>
+                </button>
+              ))}
             </div>
           </div>
           

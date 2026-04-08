@@ -228,8 +228,14 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                           <p className="text-xs font-bold">{facade.level_count} Niveles</p>
                         </div>
                         <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50">
-                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Densidad</p>
-                          <p className="text-xs font-bold">{facade.modules_per_level} Mod/Niv</p>
+                          <p className="text-[9px] uppercase tracking-widest text-muted font-bold mb-1">Geometría</p>
+                          <p className="text-xs font-bold truncate">
+                            {facade.shape === 'CIRCLE' ? 'Círculos' : 
+                             facade.shape === 'TRIANGLE_UP' ? 'Triang ▲' :
+                             facade.shape === 'TRIANGLE_DOWN' ? 'Triang ▼' :
+                             facade.shape === 'RECT_H' ? 'Rect Horiz' :
+                             facade.shape === 'TRAPEZOID' ? 'Trapecio' : 'Modular'}
+                          </p>
                         </div>
                       </div>
                     </div>
