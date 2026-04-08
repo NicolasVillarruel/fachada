@@ -192,10 +192,34 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     setSelectedModule(prev => prev ? { ...prev, module: { ...prev.module, status: nextStatus } } : null);
   };
 
-  const updateModuleMetadata = async (moduleId: string, metadata: Partial<Module>) => {
+  const updateModuleMetadata = async (moduleId: string, metadata: Partial<Module>, file?: File) => {
+    let finalMetadata = { ...metadata };
+
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${moduleId}_${Date.now()}.${fileExt}`;
+      const filePath = `${projectId}/modules/${moduleId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('facade-plans')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Error uploading module blueprint:', uploadError);
+        alert('Error al subir el plano.');
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('facade-plans')
+        .getPublicUrl(filePath);
+      
+      finalMetadata.blueprint_url = publicUrl;
+    }
+
     const { error } = await supabase
       .from('modules')
-      .update(metadata)
+      .update(finalMetadata)
       .eq('id', moduleId);
 
     if (error) {
@@ -204,7 +228,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     } else {
       fetchFacadeData();
       // Also update selected module if it's the one we're editing
-      setSelectedModule(prev => prev && prev.module.id === moduleId ? { ...prev, module: { ...prev.module, ...metadata } } : prev);
+      setSelectedModule(prev => prev && prev.module.id === moduleId ? { ...prev, module: { ...prev.module, ...finalMetadata } } : prev);
     }
   };
 
@@ -383,54 +407,39 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
             </div>
             
             <aside className="space-y-8">
-              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl">
+              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl overflow-hidden relative group">
+                <div className="absolute top-0 right-0 p-3 opacity-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M9 20v-10M15 20v-2M3 20h18"/></svg>
+                </div>
+                
                 <h3 className="text-xl font-bold font-manrope mb-8 border-b border-card-border pb-4 flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" /> 
-                  <span className="uppercase tracking-widest text-xs font-black">Sincronización</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]" /> 
+                  <span className="uppercase tracking-widest text-xs font-black">Control del Sector</span>
                 </h3>
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-xl bg-module-pending border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
-                    <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest italic text-muted">Pendiente</p>
-                      <p className="text-[10px] text-muted font-bold">Módulo no iniciado (0 pts)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-xl bg-module-progress border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
-                    <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest italic text-amber-500">En Ejecución</p>
-                      <p className="text-[10px] text-muted font-bold">Instalación activa (0.5 pts)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-xl bg-module-completed border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
-                    <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest italic text-green-500">Terminado</p>
-                      <p className="text-[10px] text-muted font-bold">Listo para entrega (1.0 pts)</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl">
-                <h3 className="text-xl font-bold font-manrope mb-8 border-b border-card-border pb-4 uppercase tracking-widest text-xs font-black">Estadísticas</h3>
+                
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-2xl bg-background/50 border border-card-border">
+                  <div className="flex justify-between items-center p-4 rounded-2xl bg-background/40 border border-card-border/50 group/total">
                     <span className="text-[10px] uppercase tracking-widest font-black text-muted">Total Unidades</span>
-                    <span className="font-black text-2xl tabular-nums">{modules.length}</span>
+                    <span className="font-black text-2xl tabular-nums group-hover:text-accent transition-colors">{modules.length}</span>
                   </div>
-                  <div className="flex justify-between items-center p-4 rounded-2xl bg-green-500/5 border border-green-500/10">
-                    <span className="text-[10px] uppercase tracking-widest font-black text-green-500/80">Terminados</span>
-                    <span className="font-black text-2xl tabular-nums text-green-500">{modules.filter(m => m.status === 'COMPLETED').length}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
-                    <span className="text-[10px] uppercase tracking-widest font-black text-amber-500/80">En Proceso</span>
-                    <span className="font-black text-2xl tabular-nums text-amber-500">{modules.filter(m => m.status === 'IN_PROGRESS').length}</span>
+
+                  <div className="grid grid-cols-1 gap-3 mt-8">
+                    {[
+                      { id: 'COMPLETED', label: 'Terminados', color: 'bg-green-500', count: modules.filter(m => m.status === 'COMPLETED').length },
+                      { id: 'IN_PROGRESS', label: 'En Proceso', color: 'bg-amber-500', count: modules.filter(m => m.status === 'IN_PROGRESS').length },
+                      { id: 'PENDING', label: 'Pendientes', color: 'bg-brand-pink', count: modules.filter(m => m.status === 'PENDING').length }
+                    ].map((stat) => (
+                      <div key={stat.id} className="flex items-center gap-4 p-4 rounded-2xl bg-background/20 border border-card-border/30 hover:bg-background/40 transition-all group/item">
+                        <div className={`w-3 h-10 rounded-full ${stat.color} shadow-lg opacity-80 group-hover:opacity-100 transition-opacity`} />
+                        <div className="flex-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground/80 transition-colors">{stat.label}</p>
+                          <p className="text-2xl font-black font-manrope tabular-nums">{stat.count}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-              
             </aside>
           </section>
         )}
@@ -441,7 +450,9 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           module={selectedModule.module}
           position={{ x: selectedModule.x, y: selectedModule.y }}
           onStatusChange={(status) => updateModuleStatus(selectedModule.module, status)}
-          onUpdateMetadata={(metadata) => updateModuleMetadata(selectedModule.module.id, metadata)}
+          onUpdateMetadata={(metadata: Partial<Module>, file?: File) => {
+            updateModuleMetadata(selectedModule.module.id, metadata, file);
+          }}
           onDelete={() => handleDeleteModule(selectedModule.module.id)}
           onClose={() => setSelectedModule(null)}
         />

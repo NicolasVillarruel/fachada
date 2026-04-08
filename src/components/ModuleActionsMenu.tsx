@@ -6,7 +6,7 @@ import { Module, ModuleStatus } from './FacadeMap';
 interface ModuleActionsMenuProps {
   module: Module;
   onStatusChange: (status: ModuleStatus) => void;
-  onUpdateMetadata: (metadata: Partial<Module>) => void;
+  onUpdateMetadata: (metadata: Partial<Module>, file?: File) => void;
   onDelete: () => void;
   onClose: () => void;
   position: { x: number; y: number };
@@ -21,6 +21,7 @@ export default function ModuleActionsMenu({
   position 
 }: ModuleActionsMenuProps) {
   const [activeTab, setActiveTab] = useState<'status' | 'info'>('status');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [localData, setLocalData] = useState({
     display_name: module.display_name || '',
     dimensions: module.dimensions || '',
@@ -29,7 +30,7 @@ export default function ModuleActionsMenu({
   });
 
   const handleSaveInfo = () => {
-    onUpdateMetadata(localData);
+    onUpdateMetadata(localData, selectedFile || undefined);
   };
 
   return (
@@ -124,13 +125,35 @@ export default function ModuleActionsMenu({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">URL Plano Módulo</label>
-                  <input 
-                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
-                    placeholder="https://..."
-                    value={localData.blueprint_url}
-                    onChange={(e) => setLocalData({...localData, blueprint_url: e.target.value})}
-                  />
+                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Plano del Módulo (Local)</label>
+                  <div className="relative">
+                    <input 
+                      type="file"
+                      id="module-file"
+                      className="hidden"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      accept=".pdf,image/*"
+                    />
+                    <label 
+                      htmlFor="module-file"
+                      className="w-full bg-background/50 border border-dashed border-card-border rounded-xl px-4 py-3 text-xs font-bold cursor-pointer hover:bg-muted/10 transition-all flex items-center justify-between group/file"
+                    >
+                      <span className="truncate max-w-[150px] opacity-60 group-hover:opacity-100 italic">
+                        {selectedFile ? selectedFile.name : (module.blueprint_url ? 'Cambiar Plano' : 'Seleccionar Archivo')}
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover:scale-110 transition-transform"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </label>
+                  </div>
+                  {module.blueprint_url && !selectedFile && (
+                    <a 
+                      href={module.blueprint_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block px-1 text-[8px] font-black text-accent hover:underline uppercase tracking-widest"
+                    >
+                      Ver Archivo Actual
+                    </a>
+                  )}
                 </div>
               </div>
               
