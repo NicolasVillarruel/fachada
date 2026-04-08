@@ -18,6 +18,7 @@ export interface Module {
 interface FacadeMapProps {
   modules: Module[];
   onModuleClick: (module: Module, e: React.MouseEvent) => void;
+  onImageClick?: (x: number, y: number) => void;
   levels?: number;
   modulesPerLevel?: number;
   elevationUrl?: string;
@@ -33,6 +34,7 @@ const statusColors: Record<ModuleStatus, string> = {
 export default function FacadeMap({ 
   modules, 
   onModuleClick, 
+  onImageClick,
   levels = 10, 
   modulesPerLevel = 15, 
   elevationUrl,
@@ -46,6 +48,16 @@ export default function FacadeMap({
   const width = modulesPerLevel * (modWidth + gap);
   const height = levels * (modHeight + gap);
 
+  const handleInternalImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMappingMode || !onImageClick) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    onImageClick(x, y);
+  };
+
   const renderModuleMarker = (module: Module) => {
     const status = module.status || 'PENDING';
     const color = statusColors[status];
@@ -57,7 +69,7 @@ export default function FacadeMap({
           e.stopPropagation();
           onModuleClick(module, e);
         }}
-        className="absolute group cursor-pointer z-20"
+        className="absolute group cursor-pointer z-[30]"
         style={{ 
           left: `${module.pos_x}%`, 
           top: `${module.pos_y}%`,
@@ -65,7 +77,7 @@ export default function FacadeMap({
         }}
       >
         <div 
-          className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30"
+          className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30 animate-in fade-in zoom-in"
           style={{ backgroundColor: color }}
         />
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-[8px] font-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
@@ -109,18 +121,21 @@ export default function FacadeMap({
           Plano de Elevación <span className="text-accent underline underline-offset-8 decoration-accent/20">Control por Coordenadas</span>
         </h2>
         
-        <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-card-border shadow-inner bg-background group/map">
+        <div 
+          className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-card-border shadow-inner bg-background group/map"
+          onClick={handleInternalImageClick}
+        >
           <img 
             src={elevationUrl} 
             alt="Frente de Obra" 
-            className="w-full h-auto object-contain block"
+            className="w-full h-auto object-contain block select-none pointer-events-none"
           />
           
           {/* Module Overlays */}
           {modules.map(m => renderModuleMarker(m))}
 
           {isMappingMode && (
-            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity z-10">
+            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity z-10 pointer-events-none">
                <div className="bg-accent text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
                  Click para identificar módulo
                </div>

@@ -50,7 +50,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
         }));
         setModules(formattedModules);
 
-        // Calculate next suggested numbers
+        // Calculate next suggested numbers if applicable
         if (formattedModules.length > 0) {
           const last = formattedModules[formattedModules.length - 1];
           setNextModuleInfo({
@@ -88,16 +88,12 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     };
   }, [fetchFacadeData, facadeId]);
 
-  const handleImageClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleImageClick = async (x: number, y: number) => {
     if (!isMappingMode || !facade) return;
     if (selectedModule) {
       setSelectedModule(null);
       return;
     }
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     const newModule = {
       project_id: projectId,
@@ -117,7 +113,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     } else {
       // Auto-increment module number within the same level
       setNextModuleInfo(prev => ({ ...prev, module: prev.module + 1 }));
-      fetchFacadeData();
+      // fetchFacadeData() is triggered by subscription
     }
   };
 
@@ -196,7 +192,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       alert('Error al eliminar el módulo.');
     } else {
       setSelectedModule(null);
-      fetchFacadeData();
+      // fetchFacadeData() is triggered by subscription
     }
   };
 
@@ -283,7 +279,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               </div>
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-accent">Configuración de Identificación</p>
-                <p className="text-sm font-bold opacity-60">Haz clic en el plano para situar el panel</p>
+                <p className="text-sm font-bold opacity-60">Haz clic en el plano para situar el módulo</p>
               </div>
             </div>
             
@@ -329,10 +325,11 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           </div>
         ) : (
           <section className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <div className="lg:col-span-3 overflow-hidden" onClick={handleImageClick}>
+            <div className="lg:col-span-3 overflow-hidden">
               <FacadeMap 
                 modules={modules} 
                 onModuleClick={handleModuleClick} 
+                onImageClick={handleImageClick}
                 levels={facade?.level_count} 
                 modulesPerLevel={facade?.modules_per_level} 
                 elevationUrl={facade?.elevation_url}
