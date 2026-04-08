@@ -66,15 +66,15 @@ export default function ProjectCard({ id, name, address, start_date, delivery_da
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-card-border/50">
+        <div className="grid grid-cols-2 gap-3 bg-slate-100/50 dark:bg-white/5 p-3 rounded-xl border border-card-border/50">
           <div className="space-y-0.5">
-            <p className="text-[8px] uppercase tracking-widest text-muted font-bold flex items-center gap-1 opacity-70">
+            <p className="text-[8px] uppercase tracking-widest text-muted font-black flex items-center gap-1">
               Inicio
             </p>
-            <p className="text-[10px] font-semibold">{start_date || 'TBD'}</p>
+            <p className="text-[10px] font-bold text-foreground/90">{start_date || 'TBD'}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-[8px] uppercase tracking-widest text-muted font-bold flex items-center gap-1 opacity-70">
+            <p className="text-[8px] uppercase tracking-widest text-muted font-black flex items-center gap-1">
               Entrega
             </p>
             <p className="text-[10px] font-bold text-accent">{delivery_date || 'TBD'}</p>
@@ -89,10 +89,10 @@ export default function ProjectCard({ id, name, address, start_date, delivery_da
         )}
       </div>
       
-      <Link href={`/projects/${id}`} className="block px-5 py-3.5 border-t border-card-border bg-slate-50/50 dark:bg-slate-900/10 hover:bg-slate-100 dark:hover:bg-slate-900/30 transition-colors">
+      <Link href={`/projects/${id}`} className="block px-5 py-3.5 border-t border-card-border bg-slate-100/30 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
         <div className="flex justify-between items-center group/link">
           <span className="text-[9px] font-black uppercase tracking-[0.1em] text-foreground/80">Gestión de Obra</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover/link:translate-x-1.5 transition-transform">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover/link:translate-x-1.5 transition-transform">
             <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
           </svg>
         </div>

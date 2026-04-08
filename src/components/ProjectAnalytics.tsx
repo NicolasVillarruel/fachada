@@ -95,7 +95,7 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Real</span>
             </div>
             <div className="flex items-center gap-2">
-               <div className="w-3 h-3 rounded-full bg-card-border border-2 border-brand-blue/30" />
+               <div className="w-3 h-3 rounded-full bg-brand-purple" />
                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Plan</span>
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
               <Area 
                 type="monotone" 
                 dataKey="expected" 
-                stroke="var(--card-border)" 
+                stroke="var(--brand-purple)" 
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 fill="none" 
