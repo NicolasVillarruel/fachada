@@ -14,6 +14,7 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
     name: '',
     level_count: 10,
     modules_per_level: 15,
+    elevation_url: '',
   });
 
   useEffect(() => {
@@ -22,12 +23,14 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
         name: initialData.name || '',
         level_count: initialData.level_count || 10,
         modules_per_level: initialData.modules_per_level || 15,
+        elevation_url: initialData.elevation_url || '',
       });
     } else {
       setFormData({
         name: '',
         level_count: 10,
         modules_per_level: 15,
+        elevation_url: '',
       });
     }
   }, [initialData, isOpen]);
@@ -55,16 +58,57 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
         </div>
         
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-3">Identificación de la Fachada</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-background border border-card-border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all font-bold placeholder:opacity-30"
-              placeholder="Ej: Fachada Principal / Norte"
-            />
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-3">Identificación de la Fachada</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full bg-background border border-card-border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all font-bold placeholder:opacity-30"
+                placeholder="Ej: Fachada Principal / Norte"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-3">Plano de Elevación (URL Imagen)</label>
+              <div className="flex gap-4">
+                <input
+                  type="url"
+                  value={formData.elevation_url}
+                  onChange={(e) => setFormData({ ...formData, elevation_url: e.target.value })}
+                  className="flex-1 bg-background border border-card-border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all font-medium text-sm placeholder:opacity-30"
+                  placeholder="https://ejemplo.com/plano.jpg"
+                />
+              </div>
+              
+              <div className="mt-4 space-y-3">
+                <p className="text-[8px] font-black uppercase tracking-widest text-muted opacity-60">Benchmarks de prueba</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, elevation_url: 'https://images.unsplash.com/photo-1503387762-592dea58f21f?q=80&w=2070&auto=format&fit=crop' })}
+                    className="flex items-center gap-3 p-2 bg-background border border-card-border rounded-xl hover:border-accent transition-all text-left group"
+                  >
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-card-border">
+                      <img src="https://images.unsplash.com/photo-1503387762-592dea58f21f?q=80&w=100&auto=format&fit=crop" className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[9px] font-bold leading-tight group-hover:text-accent">Plano Técnico Azul</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, elevation_url: 'https://images.unsplash.com/photo-1517581177682-a083bd00b35a?q=80&w=2070&auto=format&fit=crop' })}
+                    className="flex items-center gap-3 p-2 bg-background border border-card-border rounded-xl hover:border-accent transition-all text-left group"
+                  >
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-card-border">
+                      <img src="https://images.unsplash.com/photo-1517581177682-a083bd00b35a?q=80&w=100&auto=format&fit=crop" className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[9px] font-bold leading-tight group-hover:text-accent">Fachada Moderna Cristal</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-8">

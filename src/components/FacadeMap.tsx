@@ -3,19 +3,25 @@
 import React from 'react';
 
 export type ModuleStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+export type ModuleShape = 'RECT_V' | 'RECT_H' | 'CIRCLE' | 'TRIANGLE_UP' | 'TRIANGLE_DOWN' | 'TRAPEZOID';
 
 export interface Module {
   id: string;
   level_number: number;
   module_number: number;
   status: ModuleStatus;
+  shape_type?: ModuleShape;
+  pos_x?: number;
+  pos_y?: number;
 }
 
 interface FacadeMapProps {
   modules: Module[];
   onModuleClick: (module: Module) => void;
-  levels: number;
-  modulesPerLevel: number;
+  levels?: number;
+  modulesPerLevel?: number;
+  elevationUrl?: string;
+  isMappingMode?: boolean;
 }
 
 const statusColors: Record<ModuleStatus, string> = {
@@ -24,19 +30,130 @@ const statusColors: Record<ModuleStatus, string> = {
   COMPLETED: 'var(--module-completed)',
 };
 
-export default function FacadeMap({ modules, onModuleClick, levels, modulesPerLevel }: FacadeMapProps) {
-  // SVG Dimensions
+export default function FacadeMap({ 
+  modules, 
+  onModuleClick, 
+  levels = 10, 
+  modulesPerLevel = 15, 
+  elevationUrl,
+  isMappingMode = false
+}: FacadeMapProps) {
+  // SVG Dimensions for Grid Mode
   const modWidth = 44;
   const modHeight = 34;
-  const gap = 6;
+  const gap = 8;
   
   const width = modulesPerLevel * (modWidth + gap);
   const height = levels * (modHeight + gap);
 
+  const renderModuleMarker = (module: Module, isAbsolute: boolean = false) => {
+    const status = module.status || 'PENDING';
+    const color = statusColors[status];
+    
+    // Style for absolute positioned markers on images
+    if (isAbsolute) {
+      return (
+        <div 
+          key={module.id}
+          onClick={(e) => {
+            e.stopPropagation();
+            onModuleClick(module);
+          }}
+          className="absolute group cursor-pointer"
+          style={{ 
+            left: `${module.pos_x}%`, 
+            top: `${module.pos_y}%`,
+            transform: 'translate(-50%, -50%)'
+          }}
+        >
+          <div 
+            className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30"
+            style={{ backgroundColor: color }}
+          />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-[8px] font-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+            L{module.level_number} M{module.module_number}
+          </div>
+        </div>
+      );
+    }
+
+    // Grid mode logic (SVG)
+    // ... handled in the main SVG loop
+    return null;
+  };
+
+  const renderModuleShape = (x: number, y: number, status: ModuleStatus, shape: ModuleShape = 'RECT_V') => {
+    const color = statusColors[status];
+    const sharedProps = {
+      fill: color,
+      stroke: "white",
+      strokeWidth: 1.5,
+      className: "transition-all duration-300 group-hover:brightness-110 group-hover:scale-[1.05] shadow-lg group-hover:stroke-accent/50 cursor-pointer"
+    };
+
+    switch (shape) {
+      case 'CIRCLE':
+        return <circle cx={x + modWidth / 2} cy={y + modHeight / 2} r={Math.min(modWidth, modHeight) / 2} {...sharedProps} />;
+      case 'TRIANGLE_UP':
+        return <polygon points={`${x + modWidth / 2},${y} ${x},${y + modHeight} ${x + modWidth},${y + modHeight}`} {...sharedProps} />;
+      case 'TRIANGLE_DOWN':
+        return <polygon points={`${x},${y} ${x + modWidth},${y} ${x + modWidth / 2},${y + modHeight}`} {...sharedProps} />;
+      case 'TRAPEZOID':
+        return <polygon points={`${x + modWidth * 0.2},${y} ${x + modWidth * 0.8},${y} ${x + modWidth},${y + modHeight} ${x},${y + modHeight}`} {...sharedProps} />;
+      case 'RECT_H':
+        return <rect x={x} y={y + modHeight * 0.2} width={modWidth} height={modHeight * 0.6} rx={4} {...sharedProps} />;
+      case 'RECT_V':
+      default:
+        return <rect x={x} y={y} width={modWidth} height={modHeight} rx={6} {...sharedProps} />;
+    }
+  };
+
+  // IMAGE MODE
+  if (elevationUrl) {
+    return (
+      <div className="flex flex-col items-center w-full min-h-[500px] bg-card border border-card-border rounded-[3rem] shadow-2xl overflow-hidden glass-effect p-4 md:p-8">
+        <h2 className="text-xl md:text-2xl font-black text-foreground mb-8 font-manrope text-center tracking-tight">
+          Plano de Elevación <span className="text-accent underline underline-offset-8 decoration-accent/20">Control por Coordenadas</span>
+        </h2>
+        
+        <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-card-border shadow-inner bg-background group/map">
+          <img 
+            src={elevationUrl} 
+            alt="Frente de Obra" 
+            className="w-full h-auto object-contain block"
+          />
+          
+          {/* Module Overlays */}
+          {modules.map(m => renderModuleMarker(m, true))}
+
+          {isMappingMode && (
+            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity">
+               <div className="bg-accent text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                 Click para identificar módulo
+               </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-8 mt-8 p-4 bg-background/50 rounded-2xl border border-card-border">
+          {(Object.keys(statusColors) as ModuleStatus[]).map(status => (
+            <div key={status} className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-lg border-2 border-white shadow-md" style={{ backgroundColor: statusColors[status] }} />
+              <span className="text-muted text-xs font-bold uppercase tracking-widest">
+                {status === 'PENDING' ? 'Pendiente' : status === 'IN_PROGRESS' ? 'En Ejecución' : 'Terminado'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // LEGACY GRID MODE
   return (
-    <div className="flex flex-col items-center p-4 md:p-8 bg-card border border-card-border rounded-3xl shadow-2xl overflow-hidden glass-effect">
-      <h2 className="text-xl md:text-2xl font-bold text-foreground mb-8 font-manrope text-center">
-        Instalación de Paneles <span className="text-accent underline underline-offset-4 decoration-accent/20">Mapa Interactivo</span>
+    <div className="flex flex-col items-center p-4 md:p-10 bg-card border border-card-border rounded-[3rem] shadow-2xl overflow-hidden glass-effect">
+      <h2 className="text-xl md:text-2xl font-black text-foreground mb-10 font-manrope text-center tracking-tight">
+        Instalación de Paneles <span className="text-accent underline underline-offset-8 decoration-accent/20">Mapa Interactivo</span>
       </h2>
       
       <div className="overflow-auto max-w-full custom-scrollbar pb-6 w-full flex justify-start lg:justify-center">
@@ -44,18 +161,17 @@ export default function FacadeMap({ modules, onModuleClick, levels, modulesPerLe
           width={width}
           height={height}
           viewBox={`0 0 ${width} ${height}`}
-          className="bg-background rounded-xl border border-card-border shadow-inner"
+          className="bg-background rounded-2xl border border-card-border shadow-inner"
         >
-          {/* Grid Background Lines (Optional but adds premium feel) */}
           <defs>
             <pattern id="grid" width={modWidth + gap} height={modHeight + gap} patternUnits="userSpaceOnUse">
-              <rect width={modWidth + gap} height={modHeight + gap} fill="none" stroke="currentColor" strokeWidth="0.5" className="text-muted/10" />
+              <rect width={modWidth + gap} height={modHeight + gap} fill="none" stroke="currentColor" strokeWidth="0.5" className="text-muted/5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
 
           {Array.from({ length: levels }).map((_, levelIdx) => {
-            const levelNum = levels - levelIdx; // Top floors first in SVG Y
+            const levelNum = levels - levelIdx;
             return Array.from({ length: modulesPerLevel }).map((_, modIdx) => {
               const moduleNum = modIdx + 1;
               const module = modules.find(
@@ -65,47 +181,23 @@ export default function FacadeMap({ modules, onModuleClick, levels, modulesPerLe
               const x = modIdx * (modWidth + gap) + gap / 2;
               const y = levelIdx * (modHeight + gap) + gap / 2;
               const status = module?.status || 'PENDING';
+              const shape = module?.shape_type || 'RECT_V';
 
               return (
-                <g 
-                    key={`${levelNum}-${moduleNum}`} 
-                    className="group cursor-pointer" 
-                    onClick={() => module && onModuleClick(module)}
-                >
-                  <rect
-                    x={x}
-                    y={y}
-                    width={modWidth}
-                    height={modHeight}
-                    fill={statusColors[status]}
-                    rx={6}
-                    stroke="white"
-                    strokeWidth="1.5"
-                    className="transition-all duration-300 group-hover:brightness-110 group-hover:scale-[1.02] shadow-lg group-hover:stroke-accent/50"
-                  />
+                <g key={`${levelNum}-${moduleNum}`} className="group" onClick={() => module && onModuleClick(module)}>
+                  {renderModuleShape(x, y, status, shape)}
                   <text
                     x={x + modWidth / 2}
                     y={y + modHeight / 2}
-                    fontSize="9"
+                    fontSize="8"
                     fill="white"
-                    fontWeight="bold"
+                    fontWeight="900"
                     textAnchor="middle"
                     alignmentBaseline="middle"
-                    className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity font-inter drop-shadow-md"
+                    className="pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 font-manrope drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] translate-y-1 group-hover:translate-y-0"
                   >
-                    L{levelNum}M{moduleNum}
+                    L{levelNum} M{moduleNum}
                   </text>
-                  
-                  {/* Subtle gloss effect on the module */}
-                  <rect
-                    x={x + 2}
-                    y={y + 2}
-                    width={modWidth - 4}
-                    height={modHeight / 2}
-                    fill="rgba(255,255,255,0.15)"
-                    rx={4}
-                    className="pointer-events-none"
-                  />
                 </g>
               );
             });
@@ -113,14 +205,10 @@ export default function FacadeMap({ modules, onModuleClick, levels, modulesPerLe
         </svg>
       </div>
       
-      {/* Legend with modern styling */}
       <div className="flex flex-wrap justify-center gap-8 mt-4 p-4 bg-background/50 rounded-2xl border border-card-border">
         {(Object.keys(statusColors) as ModuleStatus[]).map(status => (
           <div key={status} className="flex items-center gap-3">
-            <div 
-                className="w-5 h-5 rounded-lg border-2 border-white shadow-md" 
-                style={{ backgroundColor: statusColors[status] }} 
-            />
+            <div className="w-5 h-5 rounded-lg border-2 border-white shadow-md" style={{ backgroundColor: statusColors[status] }} />
             <span className="text-muted text-xs font-bold uppercase tracking-widest">
               {status === 'PENDING' ? 'Pendiente' : status === 'IN_PROGRESS' ? 'En Proceso' : 'Terminado'}
             </span>

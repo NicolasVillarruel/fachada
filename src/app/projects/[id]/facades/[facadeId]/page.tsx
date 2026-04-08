@@ -13,6 +13,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [isMappingMode, setIsMappingMode] = useState(false);
+  const [nextModuleInfo, setNextModuleInfo] = useState({ level: 1, module: 1 });
 
   const fetchFacadeData = useCallback(async () => {
     setLoading(true);
@@ -31,8 +33,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
         .from('modules')
         .select('*')
         .eq('facade_id', facadeId)
-        .order('level_number', { ascending: false })
-        .order('module_number', { ascending: true });
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching modules:', error);
@@ -42,8 +43,19 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           level_number: m.level_number,
           module_number: m.module_number,
           status: m.status as ModuleStatus,
+          pos_x: m.pos_x,
+          pos_y: m.pos_y,
         }));
         setModules(formattedModules);
+
+        // Calculate next suggested numbers
+        if (formattedModules.length > 0) {
+          const last = formattedModules[formattedModules.length - 1];
+          setNextModuleInfo({
+            level: last.level_number,
+            module: last.module_number + 1
+          });
+        }
       }
     }
     setLoading(false);
@@ -74,6 +86,34 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     };
   }, [fetchFacadeData, facadeId]);
 
+  const handleImageClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMappingMode || !facade) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    const newModule = {
+      project_id: projectId,
+      facade_id: facadeId,
+      level_number: nextModuleInfo.level,
+      module_number: nextModuleInfo.module,
+      status: 'PENDING',
+      pos_x: x,
+      pos_y: y,
+    };
+
+    const { data, error } = await supabase.from('modules').insert([newModule]).select();
+    
+    if (error) {
+      console.error('Error adding module:', error);
+      alert('Error al posicionar el módulo. Verifica que hayas ejecutado la migración SQL.');
+    } else {
+      setNextModuleInfo(prev => ({ ...prev, module: prev.module + 1 }));
+      fetchFacadeData();
+    }
+  };
+
   const handleInitializeFacade = async () => {
     if (!facade) return;
     setIsInitializing(true);
@@ -103,6 +143,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   };
 
   const handleModuleClick = async (module: Module) => {
+    if (isMappingMode) return; // Prevent status toggle in mapping mode
+    
     const nextStatusMap: Record<ModuleStatus, ModuleStatus> = {
       PENDING: 'IN_PROGRESS',
       IN_PROGRESS: 'COMPLETED',
@@ -110,10 +152,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     };
     const nextStatus = nextStatusMap[module.status];
 
-    // Optimistic update
     setModules(prev => prev.map(m => (m.id === module.id ? { ...m, status: nextStatus } : m)));
 
-    // Update Supabase
     const { error: updateError } = await supabase
       .from('modules')
       .update({ status: nextStatus, updated_at: new Date().toISOString() })
@@ -121,29 +161,17 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
 
     if (updateError) {
       console.error('Error updating module:', updateError);
-      fetchFacadeData(); // Revert on error
+      fetchFacadeData();
       return;
     }
 
-    // Log the change in status_logs
-    const { error: logError } = await supabase
-      .from('status_logs')
-      .insert([
-        {
-          module_id: module.id,
-          old_status: module.status,
-          new_status: nextStatus,
-        }
-      ]);
-
-    if (logError) {
-      console.error('Error creating status log:', logError);
-      // We don't revert the status update even if logging fails, 
-      // but we log the error for debugging.
-    }
+    await supabase.from('status_logs').insert([{
+      module_id: module.id,
+      old_status: module.status,
+      new_status: nextStatus,
+    }]);
   };
 
-  // Weighted formula: (Completed * 1 + InProgress * 0.5) / Total
   const calculateProgress = () => {
     if (modules.length === 0) return 0;
     const completed = modules.filter((m) => m.status === 'COMPLETED').length;
@@ -170,7 +198,21 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
             </svg>
             <span className="font-bold text-[10px] tracking-widest uppercase">Volver al Proyecto</span>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-6">
+            {facade?.elevation_url && (
+              <button 
+                onClick={() => setIsMappingMode(!isMappingMode)}
+                className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  isMappingMode 
+                  ? 'bg-accent text-white shadow-lg shadow-accent/30 ring-4 ring-accent/10' 
+                  : 'bg-background border border-card-border hover:bg-muted/10'
+                }`}
+              >
+                {isMappingMode ? '✓ Finalizar Identificación' : '⌖ Modo Identificación'}
+              </button>
+            )}
+            <ThemeToggle />
+          </div>
         </nav>
 
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
@@ -202,7 +244,42 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           </div>
         </header>
 
-        {modules.length === 0 ? (
+        {isMappingMode && (
+          <div className="mb-8 p-6 bg-accent/5 border-2 border-accent/20 rounded-[2rem] flex flex-wrap items-center justify-between gap-6 animate-in slide-in-from-top duration-500">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-accent">Configuración de Identificación</p>
+                <p className="text-sm font-bold opacity-60">Haz clic en el plano para situar el panel</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6 bg-background/50 p-3 rounded-2xl border border-card-border">
+              <div className="space-y-1">
+                <label className="block text-[8px] font-black uppercase tracking-widest text-muted">Nivel Actual</label>
+                <input 
+                  type="number" 
+                  value={nextModuleInfo.level}
+                  onChange={(e) => setNextModuleInfo({...nextModuleInfo, level: parseInt(e.target.value)})}
+                  className="w-20 bg-transparent font-black text-xl border-b border-card-border focus:border-accent outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-[8px] font-black uppercase tracking-widest text-muted">Siguiente Módulo</label>
+                <input 
+                  type="number" 
+                  value={nextModuleInfo.module}
+                  onChange={(e) => setNextModuleInfo({...nextModuleInfo, module: parseInt(e.target.value)})}
+                  className="w-20 bg-transparent font-black text-xl border-b border-card-border focus:border-accent outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {modules.length === 0 && !facade?.elevation_url ? (
           <div className="flex flex-col items-center justify-center p-24 border-[3px] border-dashed border-card-border/50 rounded-[4rem] bg-card/5">
              <div className="w-24 h-24 mb-8 bg-accent/10 rounded-[2.5rem] flex items-center justify-center border border-accent/20">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
@@ -228,12 +305,14 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           </div>
         ) : (
           <section className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 overflow-hidden" onClick={handleImageClick}>
               <FacadeMap 
                 modules={modules} 
                 onModuleClick={handleModuleClick} 
                 levels={facade?.level_count} 
                 modulesPerLevel={facade?.modules_per_level} 
+                elevationUrl={facade?.elevation_url}
+                isMappingMode={isMappingMode}
               />
             </div>
             
@@ -247,7 +326,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
                   <div className="flex items-center gap-4 group">
                     <div className="w-10 h-10 rounded-xl bg-module-pending border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform" />
                     <div className="flex-1">
-                      <p className="text-xs font-black uppercase tracking-widest italic">Pendiente</p>
+                      <p className="text-xs font-black uppercase tracking-widest italic text-muted">Pendiente</p>
                       <p className="text-[10px] text-muted font-bold">Módulo no iniciado (0 pts)</p>
                     </div>
                   </div>
