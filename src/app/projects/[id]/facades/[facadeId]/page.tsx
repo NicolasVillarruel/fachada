@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import FacadeMap, { Module, ModuleStatus } from '@/components/FacadeMap';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
+import ModuleActionsMenu from '@/components/ModuleActionsMenu';
 
 export default function FacadeView({ params }: { params: Promise<{ id: string, facadeId: string }> }) {
   const { id: projectId, facadeId } = use(params);
@@ -15,6 +16,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   const [isInitializing, setIsInitializing] = useState(false);
   const [isMappingMode, setIsMappingMode] = useState(false);
   const [nextModuleInfo, setNextModuleInfo] = useState({ level: 1, module: 1 });
+  const [selectedModule, setSelectedModule] = useState<{ module: Module, x: number, y: number } | null>(null);
 
   const fetchFacadeData = useCallback(async () => {
     setLoading(true);
@@ -88,6 +90,10 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
 
   const handleImageClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isMappingMode || !facade) return;
+    if (selectedModule) {
+      setSelectedModule(null);
+      return;
+    }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -143,16 +149,18 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     setIsInitializing(false);
   };
 
-  const handleModuleClick = async (module: Module) => {
-    if (isMappingMode) return; // Prevent status toggle in mapping mode
+  const handleModuleClick = (module: Module, e: React.MouseEvent) => {
+    if (isMappingMode) return;
     
-    const nextStatusMap: Record<ModuleStatus, ModuleStatus> = {
-      PENDING: 'IN_PROGRESS',
-      IN_PROGRESS: 'COMPLETED',
-      COMPLETED: 'PENDING',
-    };
-    const nextStatus = nextStatusMap[module.status];
+    // Calculate popover position
+    setSelectedModule({
+      module,
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
 
+  const updateModuleStatus = async (module: Module, nextStatus: ModuleStatus) => {
     setModules(prev => prev.map(m => (m.id === module.id ? { ...m, status: nextStatus } : m)));
 
     const { error: updateError } = await supabase
@@ -171,6 +179,25 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       old_status: module.status,
       new_status: nextStatus,
     }]);
+    
+    setSelectedModule(null);
+  };
+
+  const handleDeleteModule = async (moduleId: string) => {
+    if (!window.confirm('¿Eliminar este punto de la fachada?')) return;
+
+    const { error } = await supabase
+      .from('modules')
+      .delete()
+      .eq('id', moduleId);
+
+    if (error) {
+      console.error('Error deleting module:', error);
+      alert('Error al eliminar el módulo.');
+    } else {
+      setSelectedModule(null);
+      fetchFacadeData();
+    }
   };
 
   const calculateProgress = () => {
@@ -202,7 +229,10 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           <div className="flex items-center gap-6">
             {facade?.elevation_url && (
               <button 
-                onClick={() => setIsMappingMode(!isMappingMode)}
+                onClick={() => {
+                  setIsMappingMode(!isMappingMode);
+                  setSelectedModule(null);
+                }}
                 className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   isMappingMode 
                   ? 'bg-accent text-white shadow-lg shadow-accent/30 ring-4 ring-accent/10' 
@@ -294,14 +324,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               disabled={isInitializing}
               className="bg-accent hover:brightness-110 disabled:bg-muted text-white font-black py-4 px-12 rounded-2xl transition-all shadow-[0_20px_40px_rgba(59,130,246,0.25)] active:scale-95 flex items-center gap-4 uppercase tracking-[0.2em] text-xs"
              >
-               {isInitializing ? (
-                 <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-               ) : (
-                 <>
-                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
-                   <span>Inicializar Fachada</span>
-                 </>
-               )}
+                {isInitializing ? 'INICIALIZANDO...' : 'INICIALIZAR FACHADA'}
              </button>
           </div>
         ) : (
@@ -370,6 +393,16 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
           </section>
         )}
       </div>
+
+      {selectedModule && (
+        <ModuleActionsMenu 
+          module={selectedModule.module}
+          position={{ x: selectedModule.x, y: selectedModule.y }}
+          onStatusChange={(status) => updateModuleStatus(selectedModule.module, status)}
+          onDelete={() => handleDeleteModule(selectedModule.module.id)}
+          onClose={() => setSelectedModule(null)}
+        />
+      )}
     </main>
   );
 }

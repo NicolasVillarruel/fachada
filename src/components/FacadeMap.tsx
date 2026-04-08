@@ -17,7 +17,7 @@ export interface Module {
 
 interface FacadeMapProps {
   modules: Module[];
-  onModuleClick: (module: Module) => void;
+  onModuleClick: (module: Module, e: React.MouseEvent) => void;
   levels?: number;
   modulesPerLevel?: number;
   elevationUrl?: string;
@@ -25,9 +25,9 @@ interface FacadeMapProps {
 }
 
 const statusColors: Record<ModuleStatus, string> = {
-  PENDING: 'var(--module-pending)',
-  IN_PROGRESS: 'var(--module-progress)',
-  COMPLETED: 'var(--module-completed)',
+  PENDING: '#f97316', // Orange 500
+  IN_PROGRESS: '#f59e0b', // Amber 500
+  COMPLETED: '#22c55e', // Green 500
 };
 
 export default function FacadeMap({ 
@@ -46,40 +46,33 @@ export default function FacadeMap({
   const width = modulesPerLevel * (modWidth + gap);
   const height = levels * (modHeight + gap);
 
-  const renderModuleMarker = (module: Module, isAbsolute: boolean = false) => {
+  const renderModuleMarker = (module: Module) => {
     const status = module.status || 'PENDING';
     const color = statusColors[status];
     
-    // Style for absolute positioned markers on images
-    if (isAbsolute) {
-      return (
+    return (
+      <div 
+        key={module.id}
+        onClick={(e) => {
+          e.stopPropagation();
+          onModuleClick(module, e);
+        }}
+        className="absolute group cursor-pointer z-20"
+        style={{ 
+          left: `${module.pos_x}%`, 
+          top: `${module.pos_y}%`,
+          transform: 'translate(-50%, -50%)'
+        }}
+      >
         <div 
-          key={module.id}
-          onClick={(e) => {
-            e.stopPropagation();
-            onModuleClick(module);
-          }}
-          className="absolute group cursor-pointer"
-          style={{ 
-            left: `${module.pos_x}%`, 
-            top: `${module.pos_y}%`,
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <div 
-            className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30"
-            style={{ backgroundColor: color }}
-          />
-          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-[8px] font-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-            L{module.level_number} M{module.module_number}
-          </div>
+          className="w-5 h-5 rounded-full border-2 border-white shadow-xl transition-all duration-300 group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/30"
+          style={{ backgroundColor: color }}
+        />
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-[8px] font-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+          L{module.level_number} M{module.module_number}
         </div>
-      );
-    }
-
-    // Grid mode logic (SVG)
-    // ... handled in the main SVG loop
-    return null;
+      </div>
+    );
   };
 
   const renderModuleShape = (x: number, y: number, status: ModuleStatus, shape: ModuleShape = 'RECT_V') => {
@@ -124,10 +117,10 @@ export default function FacadeMap({
           />
           
           {/* Module Overlays */}
-          {modules.map(m => renderModuleMarker(m, true))}
+          {modules.map(m => renderModuleMarker(m))}
 
           {isMappingMode && (
-            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity z-10">
                <div className="bg-accent text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
                  Click para identificar módulo
                </div>
@@ -184,7 +177,7 @@ export default function FacadeMap({
               const shape = module?.shape_type || 'RECT_V';
 
               return (
-                <g key={`${levelNum}-${moduleNum}`} className="group" onClick={() => module && onModuleClick(module)}>
+                <g key={`${levelNum}-${moduleNum}`} className="group" onClick={(e) => module && onModuleClick(module, e)}>
                   {renderModuleShape(x, y, status, shape)}
                   <text
                     x={x + modWidth / 2}
