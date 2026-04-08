@@ -72,13 +72,26 @@ export function calculateProjectAnalytics(
     });
 
     // Calculate progress for this day
-    let weightedSum = 0;
-    Object.values(moduleStates).forEach(status => {
-      if (status === 'COMPLETED') weightedSum += 1;
-      else if (status === 'IN_PROGRESS') weightedSum += 0.5;
-    });
+    let actualProgress;
+    
+    if (i === daysSinceStart) {
+      // For the current day, use the actual real-time status as the ground truth
+      // to avoid discrepancies if status_logs and current module status are out of sync
+      let currentWeightedSum = 0;
+      modules.forEach(m => {
+        if (m.status === 'COMPLETED') currentWeightedSum += 1;
+        else if (m.status === 'IN_PROGRESS') currentWeightedSum += 0.5;
+      });
+      actualProgress = Math.round((currentWeightedSum / totalModules) * 100);
+    } else {
+      let weightedSum = 0;
+      Object.values(moduleStates).forEach(status => {
+        if (status === 'COMPLETED') weightedSum += 1;
+        else if (status === 'IN_PROGRESS') weightedSum += 0.5;
+      });
+      actualProgress = Math.round((weightedSum / totalModules) * 100);
+    }
 
-    const actualProgress = Math.round((weightedSum / totalModules) * 100);
     const expectedProgress = Math.min(100, Math.round((i / totalDaysPlanned) * 100));
 
     timeline.push({
