@@ -281,34 +281,25 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   );
 
   return (
-    <main className="min-h-screen bg-background text-foreground p-4 md:p-12 font-inter transition-colors duration-300">
+    <main className="p-4 md:p-12 font-inter transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <nav className="mb-12 flex justify-between items-center bg-card/40 border border-card-border p-4 rounded-2xl backdrop-blur-sm">
-          <Link href={`/projects/${projectId}`} className="flex items-center gap-2 text-muted hover:text-foreground transition-colors group">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-            <span className="font-bold text-[10px] tracking-widest uppercase">Volver al Proyecto</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            {facade?.elevation_url && (
-              <button 
-                onClick={() => {
-                  setIsMappingMode(!isMappingMode);
-                  setSelectedModule(null);
-                }}
-                className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  isMappingMode 
-                  ? 'bg-accent text-white shadow-lg shadow-accent/30 ring-4 ring-accent/10' 
-                  : 'bg-background border border-card-border hover:bg-muted/10'
-                }`}
-              >
-                {isMappingMode ? '✓ Finalizar Identificación' : '⌖ Modo Identificación'}
-              </button>
-            )}
-            <ThemeToggle />
-          </div>
-        </nav>
+        <div className="mb-8 flex justify-end items-center gap-4">
+          {facade?.elevation_url && (
+            <button 
+              onClick={() => {
+                setIsMappingMode(!isMappingMode);
+                setSelectedModule(null);
+              }}
+              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                isMappingMode 
+                ? 'bg-accent text-white shadow-lg shadow-accent/30 ring-4 ring-accent/10' 
+                : 'bg-background border border-card-border hover:bg-muted/10'
+              }`}
+            >
+              {isMappingMode ? '✓ Finalizar Identificación' : '⌖ Modo Identificación'}
+            </button>
+          )}
+        </div>
 
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
           <div className="space-y-3">
