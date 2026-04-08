@@ -89,9 +89,9 @@ export default function ProjectCard({ id, name, address, start_date, delivery_da
         )}
       </div>
       
-      <Link href={`/projects/${id}`} className="block px-5 py-3.5 border-t border-card-border bg-slate-100/30 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
-        <div className="flex justify-between items-center group/link">
-          <span className="text-[9px] font-black uppercase tracking-[0.1em] text-foreground/80">Gestión de Obra</span>
+      <Link href={`/projects/${id}`} className="block px-5 py-3.5 border-t border-card-border bg-slate-100/30 dark:bg-white/5 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 transition-all group/link">
+        <div className="flex justify-between items-center">
+          <span className="text-[9px] font-black uppercase tracking-[0.1em] text-foreground/80 group-hover/link:text-brand-blue transition-colors">Gestión de Obra</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover/link:translate-x-1.5 transition-transform">
             <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
           </svg>

@@ -139,16 +139,13 @@ export default function Dashboard() {
             <p className="text-muted text-[10px] uppercase tracking-[0.4em] font-black opacity-60 ml-1">Building Progress Ecosystem</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <button 
-              onClick={openCreateModal}
-              className="group flex items-center gap-3 bg-foreground text-background font-bold py-3.5 px-7 rounded-[1.25rem] transition-all shadow-2xl hover:brightness-110 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-90 transition-transform duration-300"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span className="uppercase text-xs tracking-widest">Nuevo Proyecto</span>
-            </button>
-          </div>
+          <button 
+            onClick={openCreateModal}
+            className="group flex items-center gap-3 bg-foreground text-background font-bold py-3.5 px-7 rounded-[1.25rem] transition-all shadow-2xl hover:brightness-110 active:scale-95"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-90 transition-transform duration-300"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span className="uppercase text-xs tracking-widest">Nuevo Proyecto</span>
+          </button>
         </header>
 
         {loading && projects.length === 0 ? (

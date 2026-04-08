@@ -106,16 +106,6 @@ export default function Sidebar() {
                 </div>
               )}
             </div>
-            
-            <div className="px-4 space-y-1">
-              <Link 
-                href={`/projects/${projectId}/analytics`}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all group ${pathname.includes('/analytics') ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-muted hover:bg-muted/5 hover:text-foreground'}`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={pathname.includes('/analytics') ? 'text-white' : 'text-muted group-hover:text-brand-blue'}><path d="M12 20v-6M9 20v-10M15 20v-2M3 20h18"/></svg>
-                <span className="text-[10px] font-black uppercase tracking-widest">Estadísticas Obra</span>
-              </Link>
-            </div>
           </div>
         )}
       </nav>

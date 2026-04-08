@@ -189,18 +189,26 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       <div className="max-w-7xl mx-auto">
         {/* Navigation moved to Sidebar */}
 
-        <header className="mb-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
+        <header className="mb-20 flex flex-col lg:flex-row gap-12 items-center lg:items-center">
+          <div className="relative w-full lg:w-48 h-48 rounded-[2rem] overflow-hidden border-[8px] border-card shadow-2xl group shrink-0">
+            <img 
+              src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
+              alt={project?.name}
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            />
+          </div>
+
+          <div className="flex-1 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-accent text-[10px] font-black tracking-[0.3em] uppercase">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
               Sectorización de Obra
             </div>
             
-            <h1 className="text-2xl md:text-3xl font-black font-manrope tracking-tighter leading-tight line-clamp-2">
+            <h1 className="text-3xl md:text-5xl font-black font-manrope tracking-tighter leading-tight">
               {project?.name}
             </h1>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
+            <div className="flex flex-wrap gap-12 pt-2">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -220,15 +228,6 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div className="relative h-48 rounded-[2rem] overflow-hidden border-[8px] border-card shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] group">
-            <img 
-              src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
-              alt={project?.name}
-              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           </div>
         </header>
 
@@ -269,14 +268,13 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                     </div>
                     
                     <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate pr-2">
-                          {facade.name}
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate">
+                          {facade.name} <span className="ml-2 text-xs font-mono opacity-40 font-normal">[{facade.stats?.total || 0} MODS]</span>
                         </h3>
-                        {/* Hidden context menu button or just always show edit/delete on hover */}
                       </div>
                       
-                      <div className="space-y-5">
+                      <div className="space-y-6">
                         <div className="space-y-3">
                           <div className="flex justify-between items-end">
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
@@ -290,22 +288,23 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
-                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Pendientes</p>
-                            <p className="text-xs font-black text-brand-pink">{facade.stats?.pending || 0}</p>
+                        <div className="flex items-center justify-between gap-2 p-3 bg-background/40 rounded-2xl border border-card-border/50">
+                          <div className="flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
+                             <span className="text-[10px] font-black text-brand-pink tabular-nums">{facade.stats?.pending || 0}</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Pend</span>
                           </div>
-                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
-                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">En Proceso</p>
-                            <p className="text-xs font-black text-amber-500">{facade.stats?.inProgress || 0}</p>
+                          <div className="w-px h-4 bg-card-border" />
+                          <div className="flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                             <span className="text-[10px] font-black text-amber-500 tabular-nums">{facade.stats?.inProgress || 0}</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Proc</span>
                           </div>
-                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
-                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Terminados</p>
-                            <p className="text-xs font-black text-green-500">{facade.stats?.completed || 0}</p>
-                          </div>
-                          <div className="bg-background/40 p-2.5 rounded-xl border border-card-border/50">
-                            <p className="text-[8px] uppercase tracking-widest text-muted font-black mb-0.5">Total</p>
-                            <p className="text-xs font-black text-foreground">{facade.stats?.total || 0}</p>
+                          <div className="w-px h-4 bg-card-border" />
+                          <div className="flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                             <span className="text-[10px] font-black text-green-500 tabular-nums">{facade.stats?.completed || 0}</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Term</span>
                           </div>
                         </div>
                       </div>
