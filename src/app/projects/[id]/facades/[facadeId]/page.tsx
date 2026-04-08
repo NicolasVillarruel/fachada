@@ -95,6 +95,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
       return;
     }
 
+    // alert(`Coordenadas capturadas: X:${x.toFixed(1)} Y:${y.toFixed(1)}`);
+
     const newModule = {
       project_id: projectId,
       facade_id: facadeId,
@@ -109,11 +111,11 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
     
     if (error) {
       console.error('Error adding module:', error);
-      alert(`Error DB: ${error.message}`);
+      alert(`CRITICAL ERROR (DB): ${error.message} \nCode: ${error.code}`);
     } else {
       setNextModuleInfo(prev => ({ ...prev, module: prev.module + 1 }));
-      // Redundancy: fetch data manually immediately
       await fetchFacadeData();
+      // alert("Módulo guardado correctamente en la nube.");
     }
   };
 
@@ -390,6 +392,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-3xl">
                 <p className="text-[10px] font-black uppercase text-red-500 mb-2">Monitor Diagnóstico</p>
                 <div className="space-y-2 font-mono text-[8px] opacity-70">
+                  <p>PID: {projectId}</p>
                   <p>FID: {facadeId}</p>
                   <p>MODS: {modules.length}</p>
                   <p>SYC: {isMappingMode ? 'MAPPING' : 'VIEWING'}</p>

@@ -128,25 +128,40 @@ export default function FacadeMap({
         </h2>
         
         <div 
-          className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-card-border shadow-inner bg-background group/map"
+          className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden border-2 border-card-border shadow-2xl bg-background group/map transition-all duration-500"
           onClick={handleInternalImageClick}
         >
-          <img 
-            src={elevationUrl} 
-            alt="Frente de Obra" 
-            className="w-full h-auto object-contain block select-none pointer-events-none"
-          />
-          
-          {/* Module Overlays */}
-          {modules.map(m => renderModuleMarker(m))}
-
-          {isMappingMode && (
-            <div className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center opacity-0 group-hover/map:opacity-100 transition-opacity z-10 pointer-events-none">
-               <div className="bg-accent text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
-                 Click para identificar módulo
-               </div>
+          {elevationUrl ? (
+            <img 
+              src={elevationUrl} 
+              alt="Plano de Elevación" 
+              className="w-full h-auto object-contain block select-none"
+              onDragStart={(e) => e.preventDefault()}
+            />
+          ) : (
+            <div className="aspect-video bg-muted/20 flex flex-col items-center justify-center gap-4">
+              <div className="w-16 h-16 rounded-full border-4 border-dashed border-card-border animate-spin" />
+              <p className="text-muted font-bold text-xs uppercase tracking-widest">Cargando Elevación...</p>
             </div>
           )}
+
+          {/* Active Mapping Overlay */}
+          {isMappingMode && (
+            <div 
+              className="absolute inset-0 bg-accent/10 cursor-crosshair flex items-center justify-center z-40 animate-in fade-in duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleInternalImageClick(e);
+              }}
+            >
+              <div className="bg-accent text-white px-8 py-4 rounded-2xl shadow-2xl font-black text-xs uppercase tracking-[0.2em] border-2 border-white/20 backdrop-blur-md">
+                Modo Identificación Activo
+              </div>
+            </div>
+          )}
+          
+          {/* Module Overlays */}
+          {!isMappingMode && modules.map(m => renderModuleMarker(m))}
         </div>
         
         <div className="flex flex-wrap justify-center gap-8 mt-8 p-4 bg-background/50 rounded-2xl border border-card-border">
