@@ -35,7 +35,8 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
         .from('modules')
         .select('*')
         .eq('facade_id', facadeId)
-        .order('created_at', { ascending: true });
+        .order('level_number', { ascending: true })
+        .order('module_number', { ascending: true });
 
       if (error) {
         console.error('Error fetching modules:', error);
