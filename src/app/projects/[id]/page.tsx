@@ -189,8 +189,8 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       <div className="max-w-7xl mx-auto">
         {/* Navigation moved to Sidebar */}
 
-        <header className="mb-10 flex flex-col lg:flex-row gap-8 items-center lg:items-center">
-          <div className="relative w-full lg:w-48 h-48 rounded-[2rem] overflow-hidden shadow-2xl group shrink-0">
+        <header className="mb-10 flex flex-col lg:flex-row gap-6 items-center lg:items-center">
+          <div className="relative w-full lg:w-32 h-32 rounded-[1.5rem] overflow-hidden shadow-2xl group shrink-0">
             <img 
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
               alt={project?.name}
@@ -198,33 +198,28 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             />
           </div>
 
-          <div className="flex-1 space-y-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-accent text-[10px] font-black tracking-[0.3em] uppercase">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              Sectorización de Obra
-            </div>
-            
-            <h1 className="text-2xl md:text-4xl font-black font-manrope tracking-tighter leading-tight">
+          <div className="flex-1 space-y-2">
+            <h1 className="text-2xl md:text-3xl font-black font-manrope tracking-tighter leading-tight">
               {project?.name}
             </h1>
             
-            <div className="flex flex-wrap gap-8 pt-1">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div className="flex flex-wrap gap-5 pt-1">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Ubicación Actual</p>
-                  <p className="font-bold text-sm leading-tight">{project?.address || 'Sin dirección'}</p>
+                  <p className="text-[8px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Ubicación Actual</p>
+                  <p className="font-bold text-xs leading-tight">{project?.address || 'Sin dirección'}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Cierre de Proyecto</p>
-                  <p className="font-black text-sm text-accent leading-tight">{project?.delivery_date || 'TBD'}</p>
+                  <p className="text-[8px] tracking-[0.2em] uppercase text-muted font-black mb-0.5">Cierre de Proyecto</p>
+                  <p className="font-black text-xs text-accent leading-tight">{project?.delivery_date || 'TBD'}</p>
                 </div>
               </div>
             </div>
