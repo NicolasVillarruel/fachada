@@ -21,6 +21,7 @@ interface ProjectAnalyticsProps {
 }
 
 export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
+  if (!data) return null;
   const { timeline, velocity, estimatedCompletion, deviationDays, currentProgress, expectedProgressToday } = data;
 
   if (!timeline || timeline.length === 0) return null;

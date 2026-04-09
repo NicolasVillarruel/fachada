@@ -232,9 +232,11 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         </header>
 
         {/* Analytics Section */}
+        {analyticsData && (
           <section className="mb-12">
             <ProjectAnalytics data={analyticsData} />
           </section>
+        )}
 
         <section className="space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-4 gap-4">
