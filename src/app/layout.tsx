@@ -17,6 +17,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nicomax | Monitoreo de Obras",
   description: "Sistema inteligente de seguimiento de proyectos de construcción",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Nicomax",
+  },
 };
 
 export default function RootLayout({
