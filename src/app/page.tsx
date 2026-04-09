@@ -118,6 +118,19 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteProject = async (id: string, name: string) => {
+    if (!window.confirm(`¿Estás seguro de eliminar el proyecto "${name}"? Todo su contenido se borrará permanentemente.`)) return;
+    
+    // We assume backend handles cascading deletes (modules -> facades -> projects) or it's a simple delete
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting project:', error);
+      alert('Error al eliminar el proyecto.');
+    } else {
+      fetchProjectsWithProgress();
+    }
+  };
+
   const openCreateModal = () => {
     setEditingProject(null);
     setIsModalOpen(true);
@@ -186,6 +199,7 @@ export default function Dashboard() {
                 image_url={project.image_url}
                 progress={project.progress}
                 onEdit={openEditModal}
+                onDelete={handleDeleteProject}
                 index={index}
               />
             ))}
