@@ -29,9 +29,9 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex bg-background text-foreground font-inter">
+      <body className="h-[100dvh] flex flex-col lg:flex-row bg-background text-foreground font-inter overflow-hidden">
         <Sidebar />
-        <main className="flex-1 h-screen overflow-y-auto custom-scrollbar">
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative">
           {children}
         </main>
       </body>

@@ -148,7 +148,7 @@ export default function ProjectModal({ isOpen, onClose, onSave, initialData }: P
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-muted mb-1.5">Fecha Inicio</label>
               <div className="relative">

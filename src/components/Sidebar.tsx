@@ -43,13 +43,30 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
-      <button 
-        onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-6 left-6 z-[110] w-12 h-12 bg-card border border-card-border text-accent rounded-xl shadow-xl flex items-center justify-center active:scale-90 transition-transform"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-      </button>
+      {/* Mobile Top Header */}
+      <div className="lg:hidden shrink-0 w-full bg-card/80 backdrop-blur-xl border-b border-card-border p-4 flex items-center justify-between z-[100] sticky top-0 shadow-sm">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 -ml-2 text-foreground rounded-xl hover:bg-card active:scale-95 transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+          
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-amber-500 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+            </div>
+            <div>
+              <h1 className="text-[13px] md:text-sm font-black tracking-tighter uppercase font-manrope leading-none mt-1">Nicomax</h1>
+            </div>
+          </Link>
+        </div>
+        
+        <div className="flex items-center gap-3">
+           <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/10 flex items-center justify-center text-[10px] font-black text-accent shadow-inner">NV</div>
+        </div>
+      </div>
 
       {/* Backdrop for mobile */}
       {isMobileOpen && (
