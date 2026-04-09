@@ -33,35 +33,45 @@ export default function ModuleActionsMenu({
     onUpdateMetadata(localData, selectedFile || undefined);
   };
 
+  // Smart positioning logic: flip the menu if too close to edges
+  const isRightSide = typeof window !== 'undefined' ? position.x > window.innerWidth - 350 : false;
+  const isBottomSide = typeof window !== 'undefined' ? position.y > window.innerHeight - 450 : false;
+
   return (
     <div 
-      className="fixed z-[100] animate-in fade-in zoom-in duration-200"
-      style={{ left: position.x, top: position.y }}
+      className="fixed z-[120] animate-in fade-in zoom-in duration-200"
+      style={{ 
+        left: position.x, 
+        top: position.y,
+        transform: `translate(${isRightSide ? '-100%' : '0%'}, ${isBottomSide ? '-100%' : '0%'})`,
+        marginTop: isBottomSide ? '-10px' : '10px',
+        marginLeft: isRightSide ? '-10px' : '10px'
+      }}
     >
-      <div className="bg-card border border-card-border rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-2xl p-2 min-w-[260px] max-w-[320px] overflow-hidden">
+      <div className="bg-card border border-card-border rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-3xl p-1.5 min-w-[240px] max-w-[280px] overflow-hidden">
         {/* Header with Tabs */}
-        <div className="flex border-b border-card-border mb-4">
+        <div className="flex border-b border-card-border mb-2.5">
           <button 
             onClick={() => setActiveTab('status')}
-            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'status' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'status' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
           >
             Estados
           </button>
           <button 
             onClick={() => setActiveTab('info')}
-            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'info' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'info' ? 'text-accent border-b-2 border-accent' : 'text-muted hover:text-foreground'}`}
           >
             Información
           </button>
         </div>
 
-        <div className="px-3 pb-4">
+        <div className="px-2 pb-3">
           {activeTab === 'status' ? (
-            <div className="space-y-1.5">
-              <div className="mb-4 px-1">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted mb-1">Identificador</p>
-                <p className="text-sm font-black font-manrope">L{module.level_number} - M{module.module_number}</p>
-                {module.display_name && <p className="text-[10px] font-bold text-accent mt-0.5">{module.display_name}</p>}
+            <div className="space-y-1">
+              <div className="mb-2.5 px-1.5">
+                <p className="text-[7px] font-black uppercase tracking-[0.2em] text-muted mb-0.5">Identificador</p>
+                <p className="text-xs font-black font-manrope">L{module.level_number} - M{module.module_number}</p>
+                {module.display_name && <p className="text-[9px] font-bold text-accent mt-0.5 leading-tight">{module.display_name}</p>}
               </div>
 
               {[
@@ -72,60 +82,64 @@ export default function ModuleActionsMenu({
                 <button 
                   key={status.id}
                   onClick={() => onStatusChange(status.id as ModuleStatus)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                    module.status === status.id ? `${status.bgColor} ${status.textColor} ring-1 ring-inset ring-white/10` : 'hover:bg-muted/10 text-muted'
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    module.status === status.id ? `${status.bgColor} ${status.textColor} ring-1 ring-inset ring-white/10` : 'hover:bg-muted/5 text-muted'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-2.5 h-2.5 rounded-full ${status.color} shadow-[0_0_10px_rgba(0,0,0,0.2)]`} />
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${status.color} shadow-sm`} />
                     <span>{status.label}</span>
                   </div>
-                  {module.status === status.id && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  {module.status === status.id && (
+                    <div className="w-5 h-5 bg-white/10 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
                 </button>
               ))}
 
-              <div className="mt-6 pt-4 border-t border-card-border">
+              <div className="mt-4 pt-3 border-t border-card-border">
                 <button 
                   onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                  className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                   <span>Eliminar Módulo</span>
                 </button>
               </div>
             </div>
           ) : (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-2 duration-300">
-              <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Nombre / ID Panel</label>
+            <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-300">
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1.5 custom-scrollbar">
+                <div className="space-y-0.5">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-muted px-1.5">Nombre / ID Panel</label>
                   <input 
-                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-accent transition-colors"
                     placeholder="Ej: P-102-A"
                     value={localData.display_name}
                     onChange={(e) => setLocalData({...localData, display_name: e.target.value})}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Medidas (mm)</label>
+                <div className="space-y-0.5">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-muted px-1.5">Medidas (mm)</label>
                   <input 
-                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-accent transition-colors"
                     placeholder="Ej: 1200 x 3400"
                     value={localData.dimensions}
                     onChange={(e) => setLocalData({...localData, dimensions: e.target.value})}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Color / Acabado</label>
+                <div className="space-y-0.5">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-muted px-1.5">Color / Acabado</label>
                   <input 
-                    className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-accent transition-colors"
+                    className="w-full bg-background/50 border border-card-border rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-accent transition-colors"
                     placeholder="Ej: RAL 7016"
                     value={localData.color_code}
                     onChange={(e) => setLocalData({...localData, color_code: e.target.value})}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-muted px-1">Plano del Módulo (Local)</label>
+                  <label className="text-[8px] font-black uppercase tracking-widest text-muted px-1.5">Plano del Módulo</label>
                   <div className="relative">
                     <input 
                       type="file"
@@ -136,12 +150,12 @@ export default function ModuleActionsMenu({
                     />
                     <label 
                       htmlFor="module-file"
-                      className="w-full bg-background/50 border border-dashed border-card-border rounded-xl px-4 py-3 text-xs font-bold cursor-pointer hover:bg-muted/10 transition-all flex items-center justify-between group/file"
+                      className="w-full bg-background/50 border border-dashed border-card-border rounded-xl px-3 py-2.5 text-[10px] font-bold cursor-pointer hover:bg-muted/10 transition-all flex items-center justify-between group/file"
                     >
-                      <span className="truncate max-w-[150px] opacity-60 group-hover:opacity-100 italic">
+                      <span className="truncate max-w-[130px] opacity-60 group-hover:opacity-100 italic">
                         {selectedFile ? selectedFile.name : (module.blueprint_url ? 'Cambiar Plano' : 'Seleccionar Archivo')}
                       </span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover:scale-110 transition-transform"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent group-hover:scale-110 transition-transform"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </label>
                   </div>
                   {module.blueprint_url && !selectedFile && (
@@ -149,7 +163,7 @@ export default function ModuleActionsMenu({
                       href={module.blueprint_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-block px-1 text-[8px] font-black text-accent hover:underline uppercase tracking-widest"
+                      className="inline-block px-1.5 text-[7px] font-black text-accent hover:underline uppercase tracking-widest"
                     >
                       Ver Archivo Actual
                     </a>
@@ -159,7 +173,7 @@ export default function ModuleActionsMenu({
               
               <button 
                 onClick={handleSaveInfo}
-                className="w-full py-3 bg-foreground text-background font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-xl"
+                className="w-full py-2.5 bg-foreground text-background font-black text-[9px] uppercase tracking-[0.2em] rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-xl"
               >
                 Guardar Cambios
               </button>
@@ -169,9 +183,9 @@ export default function ModuleActionsMenu({
 
         <button 
           onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 bg-card border border-card-border rounded-full flex items-center justify-center text-muted hover:text-foreground shadow-lg hover:rotate-90 transition-all duration-300"
+          className="absolute top-2 right-2 w-7 h-7 bg-card border border-card-border rounded-full flex items-center justify-center text-muted hover:text-foreground shadow-lg hover:rotate-90 transition-all duration-300"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
     </div>
