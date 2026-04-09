@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Alumina | Fachada Manager",
-  description: "Sistema inteligente de seguimiento de fachadas",
+  title: "Nicomax | Monitoreo de Obras",
+  description: "Sistema inteligente de seguimiento de proyectos de construcción",
 };
 
 export default function RootLayout({

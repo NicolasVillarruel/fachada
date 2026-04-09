@@ -329,26 +329,6 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[8px] font-black uppercase tracking-widest text-muted">Nivel:</span>
-                <input 
-                  type="number" 
-                  value={nextModuleInfo.level}
-                  onChange={(e) => setNextModuleInfo({...nextModuleInfo, level: parseInt(e.target.value)})}
-                  className="w-12 bg-background/50 border border-card-border rounded-lg px-2 py-1 text-xs font-black outline-none focus:border-accent text-center"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[8px] font-black uppercase tracking-widest text-muted">Módulo:</span>
-                <input 
-                  type="number" 
-                  value={nextModuleInfo.module}
-                  onChange={(e) => setNextModuleInfo({...nextModuleInfo, module: parseInt(e.target.value)})}
-                  className="w-12 bg-background/50 border border-card-border rounded-lg px-2 py-1 text-xs font-black outline-none focus:border-accent text-center"
-                />
-              </div>
-            </div>
           </div>
         )}
 

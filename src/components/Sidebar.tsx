@@ -66,12 +66,12 @@ export default function Sidebar() {
         {/* Brand Logo */}
         <div className="p-6 pb-2 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M9 20v-10M15 20v-2M3 20h18"/></svg>
+            <div className="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
             </div>
             <div>
-              <h1 className="text-sm font-black tracking-tighter uppercase font-manrope">Alumina</h1>
-              <p className="text-[8px] font-black tracking-[0.3em] text-muted uppercase">Fachada Manager</p>
+              <h1 className="text-sm font-black tracking-tighter uppercase font-manrope">Nicomax</h1>
+              <p className="text-[8px] font-black tracking-[0.2em] text-muted uppercase">Monitoreo de Obras</p>
             </div>
           </Link>
           <button onClick={() => setIsMobileOpen(false)} className="lg:hidden p-2 text-muted hover:text-foreground">
