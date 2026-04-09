@@ -46,7 +46,7 @@ export default function Sidebar() {
       {/* Mobile Toggle Button */}
       <button 
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 z-[110] w-14 h-14 bg-accent text-white rounded-2xl shadow-2xl flex items-center justify-center active:scale-90 transition-transform"
+        className="lg:hidden fixed top-6 left-6 z-[110] w-12 h-12 bg-card border border-card-border text-accent rounded-xl shadow-xl flex items-center justify-center active:scale-90 transition-transform"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
       </button>

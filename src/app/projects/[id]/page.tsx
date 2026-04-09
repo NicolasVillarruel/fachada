@@ -190,7 +190,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         {/* Navigation moved to Sidebar */}
 
         <header className="mb-10 flex flex-col lg:flex-row gap-8 items-center lg:items-center">
-          <div className="relative w-full lg:w-48 h-48 rounded-[2rem] overflow-hidden border-[8px] border-card shadow-2xl group shrink-0">
+          <div className="relative w-full lg:w-48 h-48 rounded-[2rem] overflow-hidden shadow-2xl group shrink-0">
             <img 
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
               alt={project?.name}
@@ -292,19 +292,19 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                           <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
                              <span className="text-[10px] font-black text-brand-pink tabular-nums">{facade.stats?.pending || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Pend</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Pend</span>
                           </div>
                           <div className="w-px h-4 bg-card-border" />
                           <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                              <span className="text-[10px] font-black text-amber-500 tabular-nums">{facade.stats?.inProgress || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Proc</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Proc</span>
                           </div>
                           <div className="w-px h-4 bg-card-border" />
                           <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                              <span className="text-[10px] font-black text-green-500 tabular-nums">{facade.stats?.completed || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest hidden sm:inline">Term</span>
+                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Term</span>
                           </div>
                         </div>
                       </div>
@@ -313,7 +313,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                 </Link>
                 
                 {/* Actions Overlay for Hover */}
-                <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 scale-90 origin-left group-hover:scale-100 duration-300">
+                <div className="absolute top-4 left-4 flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 scale-90 origin-left group-hover:scale-100 duration-300">
                   <button 
                     onClick={(e) => handleEditFacade(e, facade)}
                     className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-xl transition-all"
