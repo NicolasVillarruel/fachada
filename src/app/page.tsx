@@ -126,7 +126,7 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-background text-foreground p-4 md:p-12 font-inter transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
           <div>
             <div className="flex items-center gap-4 mb-2">
               <div className="p-3 bg-brand-purple/10 rounded-2xl border border-brand-purple/20 shadow-inner">
@@ -141,7 +141,7 @@ export default function Dashboard() {
           
           <button 
             onClick={openCreateModal}
-            className="group flex items-center gap-3 bg-foreground text-background font-bold py-3.5 px-7 rounded-[1.25rem] transition-all shadow-2xl hover:brightness-110 active:scale-95"
+            className="group flex items-center gap-3 bg-foreground text-background font-bold py-2.5 px-6 rounded-[1.25rem] transition-all shadow-2xl hover:brightness-110 active:scale-95"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-90 transition-transform duration-300"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span className="uppercase text-xs tracking-widest">Nuevo Proyecto</span>
