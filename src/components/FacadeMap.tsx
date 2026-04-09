@@ -134,12 +134,15 @@ export default function FacadeMap({
   };
 
   if (elevationUrl) {
+    const total = modules.length;
+    const counts = {
+      PENDING: modules.filter(m => m.status === 'PENDING').length,
+      IN_PROGRESS: modules.filter(m => m.status === 'IN_PROGRESS').length,
+      COMPLETED: modules.filter(m => m.status === 'COMPLETED').length,
+    };
+
     return (
-      <div className="flex flex-col items-center w-full min-h-[500px] bg-card border border-card-border rounded-[3rem] shadow-2xl overflow-hidden glass-effect p-4 md:p-8">
-        <h2 className="text-xl md:text-2xl font-black text-foreground mb-8 font-manrope text-center tracking-tight">
-          Plano de Elevación <span className="text-accent underline underline-offset-8 decoration-accent/20">Control por Coordenadas</span>
-        </h2>
-        
+      <div className="flex flex-col items-center w-full min-h-[500px] bg-card border border-card-border rounded-[2rem] shadow-2xl overflow-hidden glass-effect p-4 md:p-6">
         <div 
           ref={containerRef}
           className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden border-2 border-card-border shadow-2xl bg-background group/map transition-all duration-500"
@@ -185,23 +188,37 @@ export default function FacadeMap({
           {modules.map(m => renderModuleMarker(m))}
         </div>
         
-        <div className="flex flex-wrap justify-center gap-8 mt-8 p-4 bg-background/50 rounded-2xl border border-card-border">
-          {isMappingMode && (
-            <div className="flex items-center gap-3 pr-8 border-r border-card-border/50">
-              <div className="w-5 h-5 rounded-lg border-2 border-dashed border-accent flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-              </div>
-              <span className="text-accent text-[10px] font-black uppercase tracking-widest">Arrastra puntos para ajustar</span>
-            </div>
-          )}
-          {(Object.keys(statusColors) as ModuleStatus[]).map(status => (
-            <div key={status} className="flex items-center gap-3">
-              <div className="w-5 h-5 rounded-lg border-2 border-white shadow-md" style={{ backgroundColor: statusColors[status] }} />
-              <span className="text-muted text-xs font-bold uppercase tracking-widest">
-                {status === 'PENDING' ? 'Pendiente' : status === 'IN_PROGRESS' ? 'En Ejecución' : 'Terminado'}
+        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 mt-6 p-4 bg-background/50 rounded-2xl border border-card-border w-full max-w-4xl shadow-inner">
+          <div className="flex items-center gap-2 pr-6 border-r border-card-border/50">
+            <span className="text-[9px] font-black uppercase tracking-widest text-muted">Total Unidades:</span>
+            <span className="text-xs font-black tabular-nums">{total}</span>
+          </div>
+
+          {[
+            { status: 'COMPLETED', label: 'Terminados' },
+            { status: 'IN_PROGRESS', label: 'En Proceso' },
+            { status: 'PENDING', label: 'Pendientes' }
+          ].map((item) => (
+            <div key={item.status} className="flex items-center gap-2">
+              <div 
+                className="w-2.5 h-2.5 rounded-full border border-white shadow-sm" 
+                style={{ backgroundColor: statusColors[item.status as ModuleStatus] }} 
+              />
+              <span className="text-muted text-[9px] font-black uppercase tracking-widest">
+                {item.label}:
+              </span>
+              <span className="text-[11px] font-black tabular-nums">
+                {counts[item.status as keyof typeof counts]}
               </span>
             </div>
           ))}
+
+          {isMappingMode && (
+            <div className="flex items-center gap-2 pl-6 border-l border-card-border/50 animate-pulse">
+              <div className="w-3 h-3 rounded-md border-2 border-dashed border-accent" />
+              <span className="text-accent text-[8px] font-black uppercase tracking-widest">Ajusta puntos arrastrando</span>
+            </div>
+          )}
         </div>
       </div>
     );

@@ -281,32 +281,32 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   );
 
   return (
-    <main className="p-4 md:p-12 font-inter">
+    <main className="p-4 md:pt-6 md:pb-12 font-inter">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-accent font-black">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3 text-[9px] tracking-[0.3em] uppercase text-accent font-black">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>{project?.name}</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black font-manrope tracking-tight leading-none truncate max-w-2xl">
+            <h1 className="text-3xl md:text-5xl font-black font-manrope tracking-tight leading-none truncate max-w-2xl">
               {facade?.name}
             </h1>
           </div>
           
-          <div className="flex flex-col items-end gap-3 p-6 bg-card border border-card-border rounded-3xl shadow-2xl backdrop-blur-3xl shrink-0 min-w-[280px] relative overflow-hidden group/card">
+          <div className="flex flex-col items-end gap-2 p-4 bg-card border border-card-border rounded-3xl shadow-2xl backdrop-blur-3xl shrink-0 min-w-[240px] relative overflow-hidden group/card shadow-accent/5">
             <div className="absolute top-[-20%] right-[-10%] opacity-[0.03] group-hover/card:opacity-[0.08] transition-opacity pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
             </div>
             
-            <div className="w-full flex justify-between items-center mb-1">
+            <div className="w-full flex justify-between items-center mb-0.5">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-brand-blue/10 flex items-center justify-center text-brand-blue">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h7"/><path d="m9 11 3 3L22 4"/><path d="m22 10V4h-6"/></svg>
+                <div className="w-7 h-7 rounded-xl bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h7"/><path d="m9 11 3 3L22 4"/><path d="m22 10V4h-6"/></svg>
                 </div>
-                <span className="text-[10px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Real</span>
+                <span className="text-[9px] text-foreground/60 uppercase tracking-[0.2em] font-black">Progreso Real</span>
               </div>
-              <span className="text-3xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
+              <span className="text-2xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
             </div>
 
             <div className="w-full bg-slate-100 dark:bg-slate-900 border border-card-border h-2.5 rounded-full overflow-hidden p-0.5">
@@ -371,79 +371,43 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
              </button>
           </div>
         ) : (
-          <section className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <div className="lg:col-span-3">
-            <div className="mb-4 flex justify-between items-center px-2">
-               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-muted flex items-center gap-2">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent opacity-50"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/></svg>
-                 Plano de Elevación
-               </h2>
-               {facade?.elevation_url && (
-                <button 
-                  onClick={() => {
-                    setIsMappingMode(!isMappingMode);
-                    setSelectedModule(null);
-                  }}
-                  className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-xl ${
-                    isMappingMode 
-                    ? 'bg-accent text-white shadow-accent/20 scale-95 ring-4 ring-accent/5' 
-                    : 'bg-foreground text-background hover:brightness-110'
-                  }`}
-                >
-                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isMappingMode ? 'animate-spin' : ''}><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
-                   {isMappingMode ? 'Finalizar Mapeo' : 'Modo Identificación'}
-                </button>
-              )}
-            </div>
-            <div className="overflow-hidden rounded-[2.5rem] border border-card-border/50 bg-card/20 shadow-inner">
-               <FacadeMap 
-                modules={modules} 
-                onModuleClick={handleModuleClick} 
-                onImageClick={handleImageClick}
-                onModuleMove={handleModuleMove}
-                levels={facade?.level_count} 
-                modulesPerLevel={facade?.modules_per_level} 
-                elevationUrl={facade?.elevation_url}
-                isMappingMode={isMappingMode}
-              />
-            </div>
-            </div>
-            
-            <aside className="space-y-8">
-              <div className="p-8 bg-card border border-card-border rounded-[2.5rem] shadow-2xl overflow-hidden relative group">
-                <div className="absolute top-0 right-0 p-3 opacity-10">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M9 20v-10M15 20v-2M3 20h18"/></svg>
-                </div>
-                
-                <h3 className="text-xl font-bold font-manrope mb-8 border-b border-card-border pb-4 flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]" /> 
-                  <span className="uppercase tracking-widest text-xs font-black">Control del Sector</span>
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-2xl bg-background/40 border border-card-border/50 group/total">
-                    <span className="text-[10px] uppercase tracking-widest font-black text-muted">Total Unidades</span>
-                    <span className="font-black text-2xl tabular-nums group-hover:text-accent transition-colors">{modules.length}</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 mt-8">
-                    {[
-                      { id: 'COMPLETED', label: 'Terminados', color: 'bg-green-500', count: modules.filter(m => m.status === 'COMPLETED').length },
-                      { id: 'IN_PROGRESS', label: 'En Proceso', color: 'bg-amber-500', count: modules.filter(m => m.status === 'IN_PROGRESS').length },
-                      { id: 'PENDING', label: 'Pendientes', color: 'bg-brand-pink', count: modules.filter(m => m.status === 'PENDING').length }
-                    ].map((stat) => (
-                      <div key={stat.id} className="flex items-center gap-4 p-4 rounded-2xl bg-background/20 border border-card-border/30 hover:bg-background/40 transition-all group/item">
-                        <div className={`w-3 h-10 rounded-full ${stat.color} shadow-lg opacity-80 group-hover:opacity-100 transition-opacity`} />
-                        <div className="flex-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-muted group-hover:text-foreground/80 transition-colors">{stat.label}</p>
-                          <p className="text-2xl font-black font-manrope tabular-nums">{stat.count}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <section className="w-full">
+            <div className="w-full">
+              <div className="mb-4 flex justify-between items-center px-2">
+                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-accent opacity-50"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/></svg>
+                  Plano de Elevación
+                </h2>
+                {facade?.elevation_url && (
+                  <button 
+                    onClick={() => {
+                      setIsMappingMode(!isMappingMode);
+                      setSelectedModule(null);
+                    }}
+                    className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-xl ${
+                      isMappingMode 
+                      ? 'bg-accent text-white shadow-accent/20 scale-95 ring-4 ring-accent/5' 
+                      : 'bg-foreground text-background hover:brightness-110'
+                    }`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isMappingMode ? 'animate-spin' : ''}><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    {isMappingMode ? 'Finalizar Mapeo' : 'Modo Identificación'}
+                  </button>
+                )}
               </div>
-            </aside>
+              <div className="overflow-hidden rounded-[2.5rem] border border-card-border/50 bg-card/20 shadow-inner">
+                <FacadeMap 
+                  modules={modules} 
+                  onModuleClick={handleModuleClick} 
+                  onImageClick={handleImageClick}
+                  onModuleMove={handleModuleMove}
+                  levels={facade?.level_count} 
+                  modulesPerLevel={facade?.modules_per_level} 
+                  elevationUrl={facade?.elevation_url}
+                  isMappingMode={isMappingMode}
+                />
+              </div>
+            </div>
           </section>
         )}
       </div>
