@@ -319,34 +319,33 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
         </div>
 
         {isMappingMode && (
-          <div className="mb-8 p-6 bg-accent/5 border-2 border-accent/20 rounded-[2rem] flex flex-wrap items-center justify-between gap-6 animate-in slide-in-from-top duration-500">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+          <div className="mb-4 flex items-center justify-between gap-4 p-2 px-4 bg-accent/5 border border-accent/10 rounded-2xl animate-in slide-in-from-top duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-accent/10 text-accent rounded-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
               </div>
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest text-accent">Configuración de Identificación</p>
-                <p className="text-sm font-bold opacity-60">Haz clic en el plano para situar el módulo</p>
-              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-accent/80">
+                Haz clic en el plano para situar módulos
+              </p>
             </div>
             
-            <div className="flex items-center gap-6 bg-background/50 p-3 rounded-2xl border border-card-border">
-              <div className="space-y-1">
-                <label className="block text-[8px] font-black uppercase tracking-widest text-muted">Nivel Actual</label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-black uppercase tracking-widest text-muted">Nivel:</span>
                 <input 
                   type="number" 
                   value={nextModuleInfo.level}
                   onChange={(e) => setNextModuleInfo({...nextModuleInfo, level: parseInt(e.target.value)})}
-                  className="w-20 bg-transparent font-black text-xl border-b border-card-border focus:border-accent outline-none"
+                  className="w-12 bg-background/50 border border-card-border rounded-lg px-2 py-1 text-xs font-black outline-none focus:border-accent text-center"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="block text-[8px] font-black uppercase tracking-widest text-muted">Siguiente Módulo</label>
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-black uppercase tracking-widest text-muted">Módulo:</span>
                 <input 
                   type="number" 
                   value={nextModuleInfo.module}
                   onChange={(e) => setNextModuleInfo({...nextModuleInfo, module: parseInt(e.target.value)})}
-                  className="w-20 bg-transparent font-black text-xl border-b border-card-border focus:border-accent outline-none"
+                  className="w-12 bg-background/50 border border-card-border rounded-lg px-2 py-1 text-xs font-black outline-none focus:border-accent text-center"
                 />
               </div>
             </div>
