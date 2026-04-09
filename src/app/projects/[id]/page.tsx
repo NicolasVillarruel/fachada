@@ -204,7 +204,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
               Sectorización de Obra
             </div>
             
-            <h1 className="text-3xl md:text-5xl font-black font-manrope tracking-tighter leading-tight">
+            <h1 className="text-2xl md:text-4xl font-black font-manrope tracking-tighter leading-tight">
               {project?.name}
             </h1>
             
@@ -242,7 +242,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-4 gap-4">
             <div className="space-y-2">
               <h2 className="text-3xl font-black font-manrope tracking-tight">Estructura de Fachadas</h2>
-              <p className="text-muted font-medium">Control modularizado por frentes de trabajo.</p>
+               <p className="text-muted text-[13px] font-medium">Control modularizado por frentes de trabajo.</p>
             </div>
             <button 
               onClick={() => {

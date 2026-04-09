@@ -33,7 +33,7 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* 1. Chart Section - 75% width on large screens */}
-        <div className="lg:col-span-3 bg-card border border-card-border rounded-[3rem] p-8 shadow-2xl overflow-hidden group h-full">
+        <div className="lg:col-span-3 bg-card border border-card-border rounded-[2rem] p-6 shadow-2xl overflow-hidden group h-full">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
             <div className="space-y-0.5">
               <h3 className="text-xl font-black font-manrope tracking-tight">Evolución del Proyecto</h3>
@@ -51,7 +51,7 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
             </div>
           </div>
 
-          <div className="h-[300px] w-full">
+          <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={timeline} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
@@ -131,65 +131,65 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
         {/* 2. KPIs Section - 25% width stacked on the right */}
         <div className="flex flex-col gap-4 h-full">
           {/* Status indicator */}
-          <div className={`p-4 rounded-[1.5rem] border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1 transition-all ${
+          <div className={`p-3 rounded-2xl border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1 transition-all ${
             isDelayed ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-green-500/20'
           }`}>
             <div className="flex justify-between items-start">
-               <div className="flex items-center gap-2">
-                 <div className={`p-1.5 rounded-lg ${isDelayed ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+               <div className="flex items-center gap-1.5">
+                 <div className={`p-1 rounded-lg ${isDelayed ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                  </div>
-                 <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Estado Tiempo</span>
+                 <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Estado Tiempo</span>
                </div>
-               <div className={`w-2 h-2 rounded-full animate-pulse shadow-lg ${isDelayed ? 'bg-red-500 shadow-red-500/50' : 'bg-green-500 shadow-green-500/50'}`} />
+               <div className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-lg ${isDelayed ? 'bg-red-500 shadow-red-500/50' : 'bg-green-500 shadow-green-500/50'}`} />
             </div>
             <div>
-              <h4 className={`text-lg font-black font-manrope leading-tight ${isDelayed ? 'text-red-500' : 'text-green-500'}`}>
+              <h4 className={`text-base font-black font-manrope leading-tight ${isDelayed ? 'text-red-500' : 'text-green-500'}`}>
                 {absDeviation === 0 ? 'En Tiempo' : `${absDeviation}d ${isDelayed ? 'Atrás' : 'Adel.'}`}
               </h4>
             </div>
           </div>
 
           {/* Velocity */}
-          <div className="p-4 rounded-[1.5rem] bg-brand-blue/5 border border-brand-blue/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-brand-blue/10 text-brand-blue">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          <div className="p-3 rounded-2xl bg-brand-blue/5 border border-brand-blue/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-lg bg-brand-blue/10 text-brand-blue">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest opacity-60 text-brand-blue">Velocidad</span>
+              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-brand-blue">Velocidad</span>
             </div>
             <div>
-              <h4 className="text-lg font-black font-manrope text-brand-blue leading-tight">
-                {velocity.toFixed(1)}% <span className="text-[10px] opacity-60 text-foreground">/ día</span>
+              <h4 className="text-base font-black font-manrope text-brand-blue leading-tight">
+                {velocity.toFixed(1)}% <span className="text-[9px] opacity-60 text-foreground">/ día</span>
               </h4>
             </div>
           </div>
 
           {/* Estimated End */}
-          <div className="p-4 rounded-[1.5rem] bg-brand-purple/5 border border-brand-purple/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-brand-purple/10 text-brand-purple">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div className="p-3 rounded-2xl bg-brand-purple/5 border border-brand-purple/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-lg bg-brand-purple/10 text-brand-purple">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest opacity-60 text-brand-purple">Proyección</span>
+              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-brand-purple">Proyección</span>
             </div>
             <div>
-              <h4 className="text-lg font-black font-manrope text-brand-purple leading-tight">
+              <h4 className="text-base font-black font-manrope text-brand-purple leading-tight">
                 {estimatedCompletion ? format(estimatedCompletion, 'dd MMM yy', { locale: es }) : 'TBD'}
               </h4>
             </div>
           </div>
 
           {/* Breach */}
-          <div className="p-4 rounded-[1.5rem] bg-card border border-card-border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-muted/10 text-muted">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4"/><path d="m5 11 7-7 7 7"/></svg>
+          <div className="p-3 rounded-2xl bg-card border border-card-border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-lg bg-muted/10 text-muted">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4"/><path d="m5 11 7-7 7 7"/></svg>
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest opacity-60 text-muted">Diferencia</span>
+              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-muted">Diferencia</span>
             </div>
             <div>
-               <h4 className={`text-lg font-black font-manrope leading-tight ${currentProgress >= expectedProgressToday ? 'text-green-500' : 'text-accent'}`}>
+               <h4 className={`text-base font-black font-manrope leading-tight ${currentProgress >= expectedProgressToday ? 'text-green-500' : 'text-accent'}`}>
                  {currentProgress >= expectedProgressToday ? '+' : ''}{currentProgress - expectedProgressToday}%
                </h4>
             </div>
