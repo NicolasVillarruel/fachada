@@ -189,7 +189,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       <div className="max-w-7xl mx-auto">
         {/* Navigation moved to Sidebar */}
 
-        <header className="mb-20 flex flex-col lg:flex-row gap-12 items-center lg:items-center">
+        <header className="mb-10 flex flex-col lg:flex-row gap-8 items-center lg:items-center">
           <div className="relative w-full lg:w-48 h-48 rounded-[2rem] overflow-hidden border-[8px] border-card shadow-2xl group shrink-0">
             <img 
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
@@ -198,7 +198,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             />
           </div>
 
-          <div className="flex-1 space-y-6">
+          <div className="flex-1 space-y-3">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 border border-accent/10 rounded-full text-accent text-[10px] font-black tracking-[0.3em] uppercase">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
               Sectorización de Obra
@@ -208,7 +208,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
               {project?.name}
             </h1>
             
-            <div className="flex flex-wrap gap-12 pt-2">
+            <div className="flex flex-wrap gap-8 pt-1">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-card border border-card-border flex items-center justify-center shrink-0 shadow-md text-accent">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -232,14 +232,12 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         </header>
 
         {/* Analytics Section */}
-        {analyticsData && (
-          <section className="mb-24">
+          <section className="mb-12">
             <ProjectAnalytics data={analyticsData} />
           </section>
-        )}
 
-        <section className="space-y-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-8 gap-6">
+        <section className="space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-card-border pb-4 gap-4">
             <div className="space-y-2">
               <h2 className="text-3xl font-black font-manrope tracking-tight">Estructura de Fachadas</h2>
               <p className="text-muted font-medium">Control modularizado por frentes de trabajo.</p>
@@ -249,7 +247,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                 setEditingFacade(null);
                 setIsModalOpen(true);
               }}
-              className="bg-foreground text-background font-black py-4 px-10 rounded-2xl hover:brightness-110 transition-all flex items-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-xs"
+              className="bg-foreground text-background font-black py-2.5 px-8 rounded-2xl hover:brightness-110 transition-all flex items-center gap-3 shadow-xl active:scale-95 uppercase tracking-widest text-[10px]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               <span>Nueva Fachada</span>
@@ -270,7 +268,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate">
-                          {facade.name} <span className="ml-2 text-xs font-mono opacity-40 font-normal">[{facade.stats?.total || 0} MODS]</span>
+                          {facade.name} <span className="ml-2 text-[10px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-lg">{facade.stats?.total || 0} Módulos</span>
                         </h3>
                       </div>
                       
@@ -288,7 +286,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between gap-2 p-3 bg-background/40 rounded-2xl border border-card-border/50">
+                        <div className="flex items-center justify-between gap-1 p-2 bg-background/40 rounded-xl border border-card-border/50">
                           <div className="flex items-center gap-2">
                              <div className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
                              <span className="text-[10px] font-black text-brand-pink tabular-nums">{facade.stats?.pending || 0}</span>

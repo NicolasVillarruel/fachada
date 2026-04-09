@@ -39,7 +39,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 h-screen sticky top-0 bg-card/60 backdrop-blur-2xl border-r border-card-border flex flex-col z-[100] transition-all duration-500 overflow-hidden">
       {/* Brand Logo */}
-      <div className="p-8 pb-4">
+      <div className="p-6 pb-2">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M9 20v-10M15 20v-2M3 20h18"/></svg>
@@ -51,27 +51,27 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 py-8 space-y-8 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 py-4 space-y-4 overflow-y-auto custom-scrollbar">
         {/* Global Navigation */}
         <div className="space-y-1">
-          <p className="px-4 text-[9px] font-black uppercase tracking-[0.3em] text-muted mb-4">Plataforma</p>
+          <p className="px-4 text-[10px] font-black uppercase tracking-[0.3em] text-muted mb-3">Plataforma</p>
           <Link 
             href="/"
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all group ${isActive('/') ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-muted hover:bg-muted/5 hover:text-foreground'}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isActive('/') ? 'text-white' : 'text-muted group-hover:text-accent'}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span className="text-xs font-black uppercase tracking-widest">Dashboard</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">Dashboard</span>
           </Link>
         </div>
 
         {/* Project Specific Navigation */}
         {projectId && (
-          <div className="space-y-6 pt-6 border-t border-card-border/50 animate-in fade-in slide-in-from-left-4 duration-500">
+          <div className="space-y-4 pt-4 border-t border-card-border/50 animate-in fade-in slide-in-from-left-4 duration-500">
             <div className="px-4">
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted mb-4 italic">Obra en curso</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted mb-3 italic">Obra en curso</p>
               <div className="bg-background/40 p-3 rounded-2xl border border-card-border/50 mb-6 drop-shadow-sm">
-                <p className="text-[10px] font-black text-accent truncate">{project?.name || 'Sincronizando...'}</p>
-                <Link href={`/projects/${projectId}`} className="text-[8px] font-black uppercase tracking-widest text-muted hover:text-foreground mt-1 block">Ver Resumen Proyecto</Link>
+                <p className="text-[11px] font-black text-accent truncate">{project?.name || 'Sincronizando...'}</p>
+                <Link href={`/projects/${projectId}`} className="text-[9px] font-black uppercase tracking-widest text-muted hover:text-foreground mt-1 block">Ver Resumen Proyecto</Link>
               </div>
             </div>
 
@@ -101,7 +101,7 @@ export default function Sidebar() {
                       </Link>
                     ))
                   ) : (
-                    <p className="px-4 py-2 text-[8px] font-bold text-muted/50 italic capitalize">Sin fachadas aún</p>
+                    <p className="px-4 py-2 text-[10px] font-bold text-muted/50 italic capitalize">Sin fachadas aún</p>
                   )}
                 </div>
               )}
