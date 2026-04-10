@@ -7,6 +7,9 @@ import ThemeToggle from '@/components/ThemeToggle';
 import FacadeModal from '@/components/FacadeModal';
 import ProjectAnalytics from '@/components/ProjectAnalytics';
 import { calculateProjectAnalytics } from '@/lib/analytics';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
 
 export default function ProjectDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = use(params);
@@ -16,6 +19,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFacade, setEditingFacade] = useState<any>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const fetchProjectWithFacadesProgress = useCallback(async () => {
     setLoading(true);
@@ -178,6 +182,42 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
     setIsModalOpen(true);
   };
 
+  const handleExportPDF = async () => {
+    const element = document.getElementById('report-content');
+    if (!element) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      let position = 0;
+      let heightLeft = pdfHeight;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`Reporte_${project?.name || 'Proyecto'}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Hubo un error al generar el PDF.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading && !project) return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="animate-pulse text-accent font-bold text-2xl tracking-[0.2em] font-manrope uppercase">Sincronizando Detalles...</div>
@@ -186,8 +226,29 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="p-4 md:p-12 font-inter transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto" id="report-content">
         {/* Navigation moved to Sidebar */}
+        
+        {/* Actions Bar */}
+        <div className="mb-6 flex justify-end">
+          <button 
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="bg-brand-blue/10 text-brand-blue font-black py-2 px-5 rounded-xl border border-brand-blue/20 hover:bg-brand-blue/20 transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 text-[10px] tracking-widest uppercase"
+          >
+            {isExporting ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-brand-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>Generando...</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+                <span>Reporte PDF</span>
+              </>
+            )}
+          </button>
+        </div>
 
         <header className="mb-10 flex flex-col lg:flex-row gap-6 items-center lg:items-center">
           <div className="relative w-full lg:w-32 h-32 rounded-[1.5rem] overflow-hidden shadow-2xl group shrink-0">
@@ -195,6 +256,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
               src={project?.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop"} 
               alt={project?.name}
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              crossOrigin="anonymous"
             />
           </div>
 
