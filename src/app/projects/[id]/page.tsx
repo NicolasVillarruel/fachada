@@ -694,7 +694,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
                             <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
                           </div>
-                          <div className="w-full bg-background border border-card-border h-2 rounded-full overflow-hidden">
+                          <div className="w-full bg-muted/10 dark:bg-muted/20 border border-muted/20 h-2 rounded-full overflow-hidden">
                             <div 
                               className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
                               style={{ width: `${facade.progress}%` }} 
@@ -727,7 +727,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                 </Link>
                 
                 {/* Actions Overlay for Hover */}
-                <div className="absolute top-4 left-4 flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 scale-90 origin-left group-hover:scale-100 duration-300">
+                <div className="absolute top-4 right-16 flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 scale-90 origin-right group-hover:scale-100 duration-300">
                   <button 
                     onClick={(e) => handleEditFacade(e, facade)}
                     className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-xl transition-all"

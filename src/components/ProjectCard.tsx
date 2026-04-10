@@ -76,7 +76,7 @@ export default function ProjectCard({ id, name, address, start_date, delivery_da
             <span className="text-[8px] font-black uppercase tracking-[0.15em] text-muted">Progreso Real</span>
             <span className="text-sm font-black font-manrope text-accent">{progress}%</span>
           </div>
-          <div className="w-full bg-slate-100 dark:bg-slate-800 border border-card-border h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-muted/10 dark:bg-muted/20 border border-muted/20 h-1.5 rounded-full overflow-hidden">
             <div 
               className="bg-accent h-full transition-all duration-1000 ease-out" 
               style={{ width: `${progress}%` }} 
