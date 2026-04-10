@@ -7,7 +7,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import FacadeModal from '@/components/FacadeModal';
 import ProjectAnalytics from '@/components/ProjectAnalytics';
 import { calculateProjectAnalytics } from '@/lib/analytics';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
 
 
