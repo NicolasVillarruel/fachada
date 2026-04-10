@@ -188,7 +188,48 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
     
     setIsExporting(true);
     try {
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      // 1. Temporarily convert images to base64 to prevent canvas tainting errors
+      const images = Array.from(element.querySelectorAll('img'));
+      const originalSrcs = images.map(img => img.src);
+      const originalCrossOrigins = images.map(img => img.crossOrigin);
+      
+      await Promise.all(images.map(async (img) => {
+        if (img.src.startsWith('http')) {
+          try {
+            img.crossOrigin = 'anonymous'; // Ensure CORS request if possible
+            const response = await fetch(img.src);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            await new Promise((resolve) => {
+              reader.onloadend = () => {
+                img.crossOrigin = null;
+                img.src = reader.result as string;
+                resolve(null);
+              };
+              reader.readAsDataURL(blob);
+            });
+          } catch (e) {
+            console.warn('Could not fetch image to bypass CORS', e);
+            // If fetch fails (CORS), replacing with transparent or leaving it might taint.
+            // We'll leave it but let html2canvas useCORS try its best.
+          }
+        }
+      }));
+
+      // 2. Capture canvas with a lower scale to prevent "canvas too large" or memory errors
+      const canvas = await html2canvas(element, { 
+        scale: 1.5, 
+        useCORS: true, 
+        logging: false,
+        backgroundColor: '#000000' // Ensure it captures the dark background properly
+      });
+      
+      // 3. Restore original image srcs
+      images.forEach((img, i) => {
+        img.src = originalSrcs[i];
+        img.crossOrigin = originalCrossOrigins[i];
+      });
+
       const imgData = canvas.toDataURL('image/png');
       
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -210,9 +251,9 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       }
 
       pdf.save(`Reporte_${project?.name || 'Proyecto'}.pdf`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating PDF:', error);
-      alert('Hubo un error al generar el PDF.');
+      alert(`Hubo un error al generar el PDF. Detalles: ${error.message || String(error)}`);
     } finally {
       setIsExporting(false);
     }
