@@ -7,7 +7,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import FacadeModal from '@/components/FacadeModal';
 import ProjectAnalytics from '@/components/ProjectAnalytics';
 import { calculateProjectAnalytics } from '@/lib/analytics';
-import html2canvas from 'html2canvas-pro';
+
 import { jsPDF } from 'jspdf';
 
 
@@ -183,74 +183,295 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
   };
 
   const handleExportPDF = async () => {
-    const element = document.getElementById('report-content');
-    if (!element) return;
-    
+    if (!project) return;
     setIsExporting(true);
+
     try {
-      // 1. Temporarily convert images to base64 to prevent canvas tainting errors
-      const images = Array.from(element.querySelectorAll('img'));
-      const originalSrcs = images.map(img => img.src);
-      const originalCrossOrigins = images.map(img => img.crossOrigin);
-      
-      await Promise.all(images.map(async (img) => {
-        if (img.src.startsWith('http')) {
-          try {
-            img.crossOrigin = 'anonymous'; // Ensure CORS request if possible
-            const response = await fetch(img.src);
-            const blob = await response.blob();
-            const reader = new FileReader();
-            await new Promise((resolve) => {
-              reader.onloadend = () => {
-                img.crossOrigin = null;
-                img.src = reader.result as string;
-                resolve(null);
-              };
-              reader.readAsDataURL(blob);
-            });
-          } catch (e) {
-            console.warn('Could not fetch image to bypass CORS', e);
-            // If fetch fails (CORS), replacing with transparent or leaving it might taint.
-            // We'll leave it but let html2canvas useCORS try its best.
-          }
-        }
-      }));
-
-      // 2. Capture canvas with a lower scale to prevent "canvas too large" or memory errors
-      const canvas = await html2canvas(element, { 
-        scale: 1.5, 
-        useCORS: true, 
-        logging: false,
-        backgroundColor: '#000000' // Ensure it captures the dark background properly
-      });
-      
-      // 3. Restore original image srcs
-      images.forEach((img, i) => {
-        img.src = originalSrcs[i];
-        img.crossOrigin = originalCrossOrigins[i];
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      let position = 0;
-      let heightLeft = pdfHeight;
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      const W = 210; // A4 width mm
+      const MARGIN = 14;
+      const CONTENT_W = W - MARGIN * 2;
+      const today = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
 
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
+      // ── Aggregate stats ──────────────────────────────────────────────────────
+      const totalModules  = facades.reduce((s, f) => s + (f.stats?.total      ?? 0), 0);
+      const completed     = facades.reduce((s, f) => s + (f.stats?.completed  ?? 0), 0);
+      const inProgress    = facades.reduce((s, f) => s + (f.stats?.inProgress ?? 0), 0);
+      const pending       = facades.reduce((s, f) => s + (f.stats?.pending    ?? 0), 0);
+      const overallPct    = analyticsData?.currentProgress ?? (
+        totalModules === 0 ? 0 : Math.round((completed + inProgress * 0.5) / totalModules * 100)
+      );
+      const deviation     = analyticsData?.deviationDays ?? 0;
+      const velocity      = analyticsData?.velocity ? analyticsData.velocity.toFixed(2) : '—';
+      const estCompletion = analyticsData?.estimatedCompletion
+        ? new Date(analyticsData.estimatedCompletion).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
+        : '—';
 
-      while (heightLeft >= 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
+      // ── Colors & helpers ─────────────────────────────────────────────────────
+      const NAVY   = [15,  40, 100] as [number,number,number];
+      const BLUE   = [29,  58, 132] as [number,number,number];
+      const GREEN  = [34, 197,  94] as [number,number,number];
+      const AMBER  = [245,158, 11] as [number,number,number];
+      const PINK   = [213, 41, 116] as [number,number,number];
+      const GRAY1  = [248,250,252] as [number,number,number]; // very light bg
+      const GRAY2  = [226,232,240] as [number,number,number]; // border
+      const GRAY3  = [100,116,139] as [number,number,number]; // muted text
+      const WHITE  = [255,255,255] as [number,number,number];
+      const BLACK  = [15, 23, 42]  as [number,number,number];
+
+      const setFill   = (c: [number,number,number]) => pdf.setFillColor(c[0], c[1], c[2]);
+      const setDraw   = (c: [number,number,number]) => pdf.setDrawColor(c[0], c[1], c[2]);
+      const setColor  = (c: [number,number,number]) => pdf.setTextColor(c[0], c[1], c[2]);
+
+      // ── 1. HEADER BAR ────────────────────────────────────────────────────────
+      setFill(NAVY);
+      pdf.rect(0, 0, W, 26, 'F');
+
+      // logo mark
+      setFill([255,255,255]);
+      pdf.roundedRect(MARGIN, 6, 14, 14, 2, 2, 'F');
+      setColor(NAVY);
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica','bold');
+      pdf.text('NM', MARGIN + 7, 14.5, { align: 'center' });
+
+      setColor(WHITE);
+      pdf.setFontSize(13);
+      pdf.setFont('helvetica','bold');
+      pdf.text('NICOMAX', MARGIN + 17, 12.5);
+      pdf.setFontSize(6.5);
+      pdf.setFont('helvetica','normal');
+      pdf.text('MONITOREO DE OBRAS', MARGIN + 17, 18);
+
+      // report label right side
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica','bold');
+      pdf.text('REPORTE DE AVANCE DE PROYECTO', W - MARGIN, 11, { align: 'right' });
+      pdf.setFont('helvetica','normal');
+      pdf.setFontSize(6.5);
+      pdf.text(`Generado: ${today}`, W - MARGIN, 17, { align: 'right' });
+
+      // ── 2. PROJECT INFO ROW ──────────────────────────────────────────────────
+      let y = 32;
+      setColor(BLACK);
+      pdf.setFontSize(15);
+      pdf.setFont('helvetica','bold');
+      pdf.text(project.name || 'Proyecto', MARGIN, y);
+
+      // status badge
+      const badgeTxt = overallPct >= 100 ? 'CONCLUIDO' : overallPct >= 50 ? 'EN AVANCE' : 'EN INICIO';
+      const badgeColor = overallPct >= 100 ? GREEN : overallPct >= 50 ? AMBER : BLUE;
+      const badgeW = 22;
+      setFill(badgeColor);
+      pdf.roundedRect(W - MARGIN - badgeW, y - 5.5, badgeW, 7, 1.5, 1.5, 'F');
+      setColor(WHITE);
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica','bold');
+      pdf.text(badgeTxt, W - MARGIN - badgeW / 2, y - 0.8, { align: 'center' });
+
+      // meta info pills
+      y += 5;
+      const infoPairs: [string, string][] = [
+        ['Dirección',       project.address      || '—'],
+        ['Inicio',          project.start_date   || '—'],
+        ['Cierre Planif.',  project.delivery_date || '—'],
+        ['Cierre Est.',     estCompletion],
+        ['Velocidad',       `${velocity}% / día`],
+        ['Desviación',      deviation !== 0 ? `${deviation > 0 ? '+' : ''}${deviation}d` : 'En tiempo'],
+      ];
+
+      const colW = CONTENT_W / 3;
+      infoPairs.forEach(([label, value], i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const cx = MARGIN + col * colW;
+        const cy = y + row * 9;
+
+        setColor(GRAY3);
+        pdf.setFontSize(5.5);
+        pdf.setFont('helvetica','bold');
+        pdf.text(label.toUpperCase(), cx, cy);
+        setColor(BLACK);
+        pdf.setFontSize(7.5);
+        pdf.setFont('helvetica','bold');
+        pdf.text(String(value), cx, cy + 4);
+      });
+
+      // ── 3. DIVIDER ───────────────────────────────────────────────────────────
+      y += 22;
+      setDraw(GRAY2);
+      pdf.setLineWidth(0.3);
+      pdf.line(MARGIN, y, W - MARGIN, y);
+      y += 5;
+
+      // ── 4. KPI CARDS ─────────────────────────────────────────────────────────
+      const kpis = [
+        { label: 'AVANCE GENERAL', value: `${overallPct}%`,    color: BLUE  },
+        { label: 'COMPLETADOS',    value: String(completed),    color: GREEN },
+        { label: 'EN PROCESO',     value: String(inProgress),   color: AMBER },
+        { label: 'PENDIENTES',     value: String(pending),      color: PINK  },
+        { label: 'TOTAL MÓDULOS',  value: String(totalModules), color: NAVY  },
+      ];
+
+      const cardW = (CONTENT_W - 4 * 3) / 5;
+      const cardH = 18;
+      kpis.forEach((k, i) => {
+        const cx = MARGIN + i * (cardW + 3);
+        // card bg
+        setFill(GRAY1);
+        setDraw(GRAY2);
+        pdf.setLineWidth(0.3);
+        pdf.roundedRect(cx, y, cardW, cardH, 2, 2, 'FD');
+        // top accent line
+        setFill(k.color);
+        pdf.roundedRect(cx, y, cardW, 2, 1, 1, 'F');
+        // value
+        setColor(k.color);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica','bold');
+        pdf.text(k.value, cx + cardW / 2, y + 11, { align: 'center' });
+        // label
+        setColor(GRAY3);
+        pdf.setFontSize(5);
+        pdf.setFont('helvetica','bold');
+        pdf.text(k.label, cx + cardW / 2, y + 16, { align: 'center' });
+      });
+
+      // ── 5. OVERALL PROGRESS BAR ──────────────────────────────────────────────
+      y += cardH + 5;
+      setColor(GRAY3);
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica','bold');
+      pdf.text('PROGRESO GLOBAL DEL PROYECTO', MARGIN, y);
+      pdf.setFont('helvetica','normal');
+      pdf.text(`${overallPct}% completado`, W - MARGIN, y, { align: 'right' });
+
+      y += 3;
+      const barH = 5;
+      setFill(GRAY2);
+      pdf.roundedRect(MARGIN, y, CONTENT_W, barH, 2, 2, 'F');
+      setFill(BLUE);
+      pdf.roundedRect(MARGIN, y, CONTENT_W * (overallPct / 100), barH, 2, 2, 'F');
+      y += barH + 5;
+
+      // ── 6. FACADES TABLE ─────────────────────────────────────────────────────
+      setDraw(GRAY2);
+      pdf.setLineWidth(0.3);
+      pdf.line(MARGIN, y, W - MARGIN, y);
+      y += 4;
+
+      setColor(GRAY3);
+      pdf.setFontSize(5.5);
+      pdf.setFont('helvetica','bold');
+      pdf.text('DETALLE POR FACHADA', MARGIN, y);
+      y += 4;
+
+      // Table header
+      const cols = { name: 0, total: 88, comp: 105, prog: 122, pend: 139, bar: 156 };
+      const colHeaders: { key: keyof typeof cols; label: string }[] = [
+        { key: 'name',  label: 'FACHADA'      },
+        { key: 'total', label: 'TOTAL'         },
+        { key: 'comp',  label: 'COMPLETADOS'   },
+        { key: 'prog',  label: 'EN PROCESO'    },
+        { key: 'pend',  label: 'PENDIENTES'    },
+        { key: 'bar',   label: 'AVANCE'        },
+      ];
+
+      // header bg
+      setFill([237,242,248]);
+      pdf.rect(MARGIN, y, CONTENT_W, 6.5, 'F');
+
+      setColor(NAVY);
+      pdf.setFontSize(5.5);
+      pdf.setFont('helvetica','bold');
+      colHeaders.forEach(h => {
+        const x = h.key === 'name' ? MARGIN + 2 : MARGIN + cols[h.key];
+        pdf.text(h.label, x, y + 4.5);
+      });
+      y += 7;
+
+      // Rows
+      pdf.setFontSize(7);
+      const rowH = 8;
+      const BAR_W = 38;
+
+      facades.forEach((facade, idx) => {
+        const rowBg = idx % 2 === 0 ? WHITE : GRAY1;
+        setFill(rowBg);
+        pdf.rect(MARGIN, y, CONTENT_W, rowH, 'F');
+
+        // Bottom row border
+        setDraw([226,232,240]);
+        pdf.setLineWidth(0.2);
+        pdf.line(MARGIN, y + rowH, W - MARGIN, y + rowH);
+
+        const pct = facade.progress ?? 0;
+        const rowY = y + 5.5;
+
+        // Name
+        setColor(BLACK);
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(7);
+        const nameStr = facade.name.length > 28 ? facade.name.slice(0, 26) + '…' : facade.name;
+        pdf.text(nameStr, MARGIN + 2, rowY);
+
+        // Numbers
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(7);
+        const nums: [string, keyof typeof cols, [number,number,number]][] = [
+          [String(facade.stats?.total      ?? 0), 'total', BLACK],
+          [String(facade.stats?.completed  ?? 0), 'comp',  GREEN],
+          [String(facade.stats?.inProgress ?? 0), 'prog',  AMBER],
+          [String(facade.stats?.pending    ?? 0), 'pend',  PINK ],
+        ];
+        nums.forEach(([txt, col, color]) => {
+          setColor(color);
+          pdf.setFont('helvetica','bold');
+          pdf.text(txt, MARGIN + cols[col] + 6, rowY, { align: 'center' });
+        });
+
+        // Mini progress bar
+        const bx = MARGIN + cols['bar'];
+        const bw = BAR_W;
+        const bh = 3;
+        const by = y + (rowH - bh) / 2;
+        setFill(GRAY2);
+        pdf.roundedRect(bx, by, bw, bh, 1, 1, 'F');
+        const fillColor = pct >= 80 ? GREEN : pct >= 40 ? AMBER : BLUE;
+        setFill(fillColor);
+        pdf.roundedRect(bx, by, bw * (pct / 100), bh, 1, 1, 'F');
+        // pct label
+        setColor(BLACK);
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(6);
+        pdf.text(`${pct}%`, bx + bw + 2, by + bh);
+
+        y += rowH;
+      });
+
+      if (facades.length === 0) {
+        setColor(GRAY3);
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(8);
+        pdf.text('Sin fachadas registradas.', MARGIN + 2, y + 5);
+        y += 10;
       }
 
-      pdf.save(`Reporte_${project?.name || 'Proyecto'}.pdf`);
+      // ── 7. FOOTER ────────────────────────────────────────────────────────────
+      const footerY = 287;
+      setDraw(GRAY2);
+      pdf.setLineWidth(0.3);
+      pdf.line(MARGIN, footerY, W - MARGIN, footerY);
+
+      setColor(GRAY3);
+      pdf.setFontSize(5.5);
+      pdf.setFont('helvetica','normal');
+      pdf.text('NICOMAX — Monitoreo de Obras  |  Documento generado automáticamente. Solo para uso interno.', MARGIN, footerY + 3.5);
+      pdf.text('Pág. 1 / 1', W - MARGIN, footerY + 3.5, { align: 'right' });
+
+      // ── Save ─────────────────────────────────────────────────────────────────
+      pdf.save(`Reporte_${(project.name || 'Proyecto').replace(/\s+/g, '_')}.pdf`);
+
     } catch (error: any) {
       console.error('Error generating PDF:', error);
       alert(`Hubo un error al generar el PDF. Detalles: ${error.message || String(error)}`);
