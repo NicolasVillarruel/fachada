@@ -227,21 +227,35 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       setFill(NAVY);
       pdf.rect(0, 0, W, 26, 'F');
 
-      // logo mark
-      setFill([255,255,255]);
-      pdf.roundedRect(MARGIN, 6, 14, 14, 2, 2, 'F');
-      setColor(NAVY);
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica','bold');
-      pdf.text('NM', MARGIN + 7, 14.5, { align: 'center' });
+      // logo mark (vector drawing)
+      setFill(AMBER);
+      pdf.roundedRect(MARGIN, 5, 14, 14, 2.5, 2.5, 'F');
+      
+      setDraw(WHITE);
+      pdf.setLineWidth(0.7);
+      pdf.setLineCap('round');
+      pdf.setLineJoin('round');
+      const sx = (v: number) => MARGIN + (v * 14 / 24);
+      const sy = (v: number) => 5 + (v * 14 / 24);
+      
+      // Building base
+      pdf.line(sx(3), sy(20), sx(21), sy(20));
+      // Building body
+      pdf.roundedRect(sx(5), sy(4), sx(19)-sx(5), sy(20)-sy(4), 0.5, 0.5, 'D');
+      // Windows (as tiny dots/lines)
+      pdf.setLineWidth(1.2);
+      [8, 12, 16].forEach(wy => {
+        pdf.line(sx(9.5), sy(wy), sx(9.51), sy(wy));
+        pdf.line(sx(14.5), sy(wy), sx(14.51), sy(wy));
+      });
 
       setColor(WHITE);
       pdf.setFontSize(13);
       pdf.setFont('helvetica','bold');
-      pdf.text('NICOMAX', MARGIN + 17, 12.5);
+      pdf.text('NICOMAX', MARGIN + 18, 11);
       pdf.setFontSize(6.5);
       pdf.setFont('helvetica','normal');
-      pdf.text('MONITOREO DE OBRAS', MARGIN + 17, 18);
+      pdf.text('MONITOREO DE OBRAS', MARGIN + 18, 16.5);
 
       // report label right side
       pdf.setFontSize(7);
@@ -252,7 +266,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       pdf.text(`Generado: ${today}`, W - MARGIN, 17, { align: 'right' });
 
       // ── 2. PROJECT INFO ROW ──────────────────────────────────────────────────
-      let y = 32;
+      let y = 38; // Increased from 32 for better separation
       setColor(BLACK);
       pdf.setFontSize(15);
       pdf.setFont('helvetica','bold');
@@ -297,14 +311,95 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         pdf.text(String(value), cx, cy + 4);
       });
 
-      // ── 3. DIVIDER ───────────────────────────────────────────────────────────
-      y += 22;
+      // ── 3. PROJECT TIMELINE CHART ────────────────────────────────────────────
+      y += 18;
       setDraw(GRAY2);
       pdf.setLineWidth(0.3);
       pdf.line(MARGIN, y, W - MARGIN, y);
       y += 5;
 
+      setColor(GRAY3);
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica','bold');
+      pdf.text('EVOLUCIÓN DEL PROYECTO', MARGIN, y);
+      
+      // Legend
+      setFill(BLUE);
+      pdf.circle(W - MARGIN - 23, y - 1, 1, 'F');
+      setColor(BLACK);
+      pdf.setFontSize(5.5);
+      pdf.text('REAL', W - MARGIN - 20, y);
+
+      setFill(PINK);
+      pdf.circle(W - MARGIN - 9, y - 1, 1, 'F');
+      setColor(BLACK);
+      pdf.text('PLAN', W - MARGIN - 6, y);
+
+      y += 5;
+      
+      // Chart Area
+      const chartH = 26;
+      const chartW = CONTENT_W - 8; // Leave some right padding
+      const chartX = MARGIN + 4; // Shift right for Y-axis labels
+      
+      // Grid lines & Y-axis labels
+      setDraw([241,245,249]); // slate-100
+      pdf.setLineWidth(0.2);
+      [0, 25, 50, 75, 100].forEach(val => {
+        const lineY = y + chartH - (val / 100) * chartH;
+        pdf.line(chartX, lineY, chartX + chartW, lineY);
+        setColor(GRAY3);
+        pdf.setFontSize(4.5);
+        pdf.text(String(val), chartX - 2, lineY + 1.5, { align: 'right' });
+      });
+
+      // Draw lines
+      const tl = analyticsData?.timeline || [];
+      if (tl.length > 0) {
+        const stepX = chartW / Math.max(1, tl.length - 1);
+        
+        // Plan line (dashed, PINK)
+        setDraw(PINK);
+        pdf.setLineWidth(0.4);
+        pdf.setLineDashPattern([1, 1], 0);
+        for (let i = 0; i < tl.length - 1; i++) {
+          const x1 = chartX + i * stepX;
+          const y1 = y + chartH - (tl[i].expected / 100) * chartH;
+          const x2 = chartX + (i + 1) * stepX;
+          const y2 = y + chartH - (tl[i+1].expected / 100) * chartH;
+          pdf.line(x1, y1, x2, y2);
+        }
+        
+        // Real line (solid, BLUE)
+        setDraw(BLUE);
+        pdf.setLineWidth(0.6);
+        pdf.setLineDashPattern([], 0); // reset
+        for (let i = 0; i < tl.length - 1; i++) {
+          const x1 = chartX + i * stepX;
+          const y1 = y + chartH - (tl[i].actual / 100) * chartH;
+          const x2 = chartX + (i + 1) * stepX;
+          const y2 = y + chartH - (tl[i+1].actual / 100) * chartH;
+          pdf.line(x1, y1, x2, y2);
+        }
+        
+        // Dates on X-axis
+        setColor(GRAY3);
+        pdf.setFontSize(4.5);
+        if (tl.length > 0) {
+           pdf.text(tl[0].date, chartX, y + chartH + 3.5);
+           pdf.text(tl[Math.floor(tl.length/2)].date, chartX + chartW/2, y + chartH + 3.5, { align: 'center' });
+           pdf.text(tl[tl.length-1].date, chartX + chartW, y + chartH + 3.5, { align: 'right' });
+        }
+      } else {
+        setColor(GRAY3);
+        pdf.setFontSize(7);
+        pdf.text('Sin datos suficientes', chartX + chartW/2, y + chartH/2, { align: 'center' });
+      }
+      
+      pdf.setLineDashPattern([], 0); // safe reset
+
       // ── 4. KPI CARDS ─────────────────────────────────────────────────────────
+      y += chartH + 10;
       const kpis = [
         { label: 'AVANCE GENERAL', value: `${overallPct}%`,    color: BLUE  },
         { label: 'COMPLETADOS',    value: String(completed),    color: GREEN },
@@ -366,8 +461,8 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       pdf.text('DETALLE POR FACHADA', MARGIN, y);
       y += 4;
 
-      // Table header
-      const cols = { name: 0, total: 88, comp: 105, prog: 122, pend: 139, bar: 156 };
+      // Table header tailored narrower to fit percentages on the right
+      const cols = { name: 0, total: 75, comp: 94, prog: 114, pend: 134, bar: 152 };
       const colHeaders: { key: keyof typeof cols; label: string }[] = [
         { key: 'name',  label: 'FACHADA'      },
         { key: 'total', label: 'TOTAL'         },
@@ -393,7 +488,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       // Rows
       pdf.setFontSize(7);
       const rowH = 8;
-      const BAR_W = 38;
+      const BAR_W = 20; // Reduced width so percentage text fits beautifully
 
       facades.forEach((facade, idx) => {
         const rowBg = idx % 2 === 0 ? WHITE : GRAY1;
@@ -433,7 +528,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         // Mini progress bar
         const bx = MARGIN + cols['bar'];
         const bw = BAR_W;
-        const bh = 3;
+        const bh = 3.5;
         const by = y + (rowH - bh) / 2;
         setFill(GRAY2);
         pdf.roundedRect(bx, by, bw, bh, 1, 1, 'F');
@@ -443,8 +538,8 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         // pct label
         setColor(BLACK);
         pdf.setFont('helvetica','bold');
-        pdf.setFontSize(6);
-        pdf.text(`${pct}%`, bx + bw + 2, by + bh);
+        pdf.setFontSize(6.5);
+        pdf.text(`${pct}%`, bx + bw + 2, by + bh - 0.5);
 
         y += rowH;
       });
