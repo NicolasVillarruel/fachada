@@ -309,7 +309,7 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
               <span className="text-2xl font-black font-manrope text-brand-blue tabular-nums tracking-tighter">{progress}%</span>
             </div>
 
-            <div className="w-full bg-slate-100 dark:bg-slate-900 border border-card-border h-2.5 rounded-full overflow-hidden p-0.5">
+            <div className="w-full bg-muted/10 dark:bg-muted/20 border border-muted/20 h-2.5 rounded-full overflow-hidden p-0.5">
               <div 
                 className="bg-gradient-to-r from-brand-blue/80 to-brand-blue h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.3)]" 
                 style={{ width: `${progress}%` }} 

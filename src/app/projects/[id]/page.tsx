@@ -672,77 +672,75 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             {facades.map((facade) => (
-              <div key={facade.id} className="relative group">
-                <Link href={`/projects/${projectId}/facades/${facade.id}`} className="block h-full">
-                  <div className="bg-card border border-card-border p-6 rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-between group-hover:-translate-y-1">
-                    <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-3">
-                      <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <div key={facade.id} className="relative group bg-card border border-card-border rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 h-full flex flex-col justify-between overflow-hidden group-hover:-translate-y-1">
+                {/* Header Row - Part of standard flow to avoid overlapping */}
+                <div className="p-6 pb-4 flex justify-between items-start gap-3 relative z-20">
+                  <Link href={`/projects/${projectId}/facades/${facade.id}`} className="min-w-0 flex-1 group/title block">
+                    <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover/title:text-accent transition-colors truncate">
+                      {facade.name}
+                    </h3>
+                    <div className="mt-2">
+                      <span className="text-[10px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-lg inline-block">{facade.stats?.total || 0} Módulos</span>
+                    </div>
+                  </Link>
+
+                  <div className="flex items-center gap-1.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => handleEditFacade(e, facade)}
+                      className="p-2.5 bg-background border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-sm transition-all"
+                      title="Editar Fachada"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    </button>
+                    <button 
+                      onClick={(e) => handleDeleteFacade(e, facade.id)}
+                      className="p-2.5 bg-background border border-card-border rounded-xl text-muted hover:text-red-500 hover:border-red-500/40 shadow-sm transition-all"
+                      title="Eliminar Fachada"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    </button>
+                    <Link href={`/projects/${projectId}/facades/${facade.id}`} className="w-9 h-9 ml-1 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 group-hover:scale-110 transition-transform">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </Link>
+                  </div>
+                </div>
+
+                <Link href={`/projects/${projectId}/facades/${facade.id}`} className="block flex-1 p-6 pt-0">
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-end">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
+                        <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
+                      </div>
+                      <div className="w-full bg-muted/10 dark:bg-muted/20 border border-muted/20 h-2 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
+                          style={{ width: `${facade.progress}%` }} 
+                        />
                       </div>
                     </div>
                     
-                    <div>
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover:text-accent transition-colors truncate">
-                          {facade.name} <span className="ml-2 text-[10px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-lg">{facade.stats?.total || 0} Módulos</span>
-                        </h3>
+                    <div className="flex items-center justify-between gap-1 p-2 bg-background/40 rounded-xl border border-card-border/50">
+                      <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
+                         <span className="text-[10px] font-black text-brand-pink tabular-nums">{facade.stats?.pending || 0}</span>
+                         <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Pend</span>
                       </div>
-                      
-                      <div className="space-y-6">
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">Avance Real</span>
-                            <span className="text-lg font-black font-manrope text-accent">{facade.progress}%</span>
-                          </div>
-                          <div className="w-full bg-muted/10 dark:bg-muted/20 border border-muted/20 h-2 rounded-full overflow-hidden">
-                            <div 
-                              className="bg-accent h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
-                              style={{ width: `${facade.progress}%` }} 
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between gap-1 p-2 bg-background/40 rounded-xl border border-card-border/50">
-                          <div className="flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
-                             <span className="text-[10px] font-black text-brand-pink tabular-nums">{facade.stats?.pending || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Pend</span>
-                          </div>
-                          <div className="w-px h-4 bg-card-border" />
-                          <div className="flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                             <span className="text-[10px] font-black text-amber-500 tabular-nums">{facade.stats?.inProgress || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Proc</span>
-                          </div>
-                          <div className="w-px h-4 bg-card-border" />
-                          <div className="flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                             <span className="text-[10px] font-black text-green-500 tabular-nums">{facade.stats?.completed || 0}</span>
-                             <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Term</span>
-                          </div>
-                        </div>
+                      <div className="w-px h-4 bg-card-border" />
+                      <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                         <span className="text-[10px] font-black text-amber-500 tabular-nums">{facade.stats?.inProgress || 0}</span>
+                         <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Proc</span>
+                      </div>
+                      <div className="w-px h-4 bg-card-border" />
+                      <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                         <span className="text-[10px] font-black text-green-500 tabular-nums">{facade.stats?.completed || 0}</span>
+                         <span className="text-[8px] font-bold text-muted uppercase tracking-widest inline">Term</span>
                       </div>
                     </div>
                   </div>
                 </Link>
-                
-                {/* Actions Overlay for Hover */}
-                <div className="absolute top-4 right-16 flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 scale-90 origin-right group-hover:scale-100 duration-300">
-                  <button 
-                    onClick={(e) => handleEditFacade(e, facade)}
-                    className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-xl transition-all"
-                    title="Editar Fachada"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                  </button>
-                  <button 
-                    onClick={(e) => handleDeleteFacade(e, facade.id)}
-                    className="p-3 bg-card border border-card-border rounded-xl text-muted hover:text-red-500 hover:border-red-500/40 shadow-xl transition-all"
-                    title="Eliminar Fachada"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                  </button>
-                </div>
               </div>
             ))}
             
