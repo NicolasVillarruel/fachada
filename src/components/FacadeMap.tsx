@@ -170,9 +170,9 @@ export default function FacadeMap({
             <div 
               className="absolute inset-0 bg-accent/5 cursor-crosshair flex items-center justify-center z-40 animate-in fade-in duration-300"
               onClick={(e) => {
+                e.stopPropagation();
                 // If we were dragging, stop bubbling to avoid creating new modules
                 if (draggingId) {
-                  e.stopPropagation();
                   return;
                 }
                 handleInternalImageClick(e as any);

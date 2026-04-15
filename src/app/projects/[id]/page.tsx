@@ -70,7 +70,13 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         // Update Analytics
         const { data: allModules } = await supabase.from('modules').select('id, status').eq('project_id', projectId);
         if (projectData && allModules) {
-          const analytics = calculateProjectAnalytics(projectData, allModules, []);
+          const moduleIds = allModules.map(m => m.id);
+          const { data: allLogs } = await supabase
+            .from('status_logs')
+            .select('*')
+            .in('module_id', moduleIds);
+
+          const analytics = calculateProjectAnalytics(projectData, allModules, allLogs || []);
           setAnalyticsData(analytics);
         }
       }
