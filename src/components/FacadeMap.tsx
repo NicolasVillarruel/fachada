@@ -118,10 +118,10 @@ export default function FacadeMap({
         }}
       >
         <div 
-          className={`w-6 h-6 rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300 ${isDragging ? 'ring-4 ring-white ring-offset-2 ring-offset-accent' : 'group-hover:scale-150 group-hover:ring-4 group-hover:ring-accent/50'} animate-in fade-in zoom-in`}
+          className={`w-4 h-4 rounded-full border-2 border-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-300 ${isDragging ? 'ring-2 ring-white ring-offset-1 ring-offset-accent' : 'group-hover:scale-150 group-hover:ring-2 group-hover:ring-accent/50'} animate-in fade-in zoom-in`}
           style={{ 
             backgroundColor: color,
-            boxShadow: `0 0 20px ${color}80, 0 0 5px white`
+            boxShadow: `0 0 15px ${color}80, 0 0 3px white`
           }}
         />
         {!isDragging && (
