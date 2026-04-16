@@ -89,36 +89,6 @@ export default function FacadeModal({ isOpen, onClose, onSave, initialData }: Fa
                   placeholder="Ej: Fachada Este"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted">Niveles</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.level_count}
-                    onChange={(e) => setFormData({ ...formData, level_count: parseInt(e.target.value) })}
-                    className="w-full bg-background border border-card-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all font-black text-center"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted">Mod. Ref</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.modules_per_level}
-                    onChange={(e) => setFormData({ ...formData, modules_per_level: parseInt(e.target.value) })}
-                    className="w-full bg-background border border-card-border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all font-black text-center"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20">
-                <p className="text-[9px] font-black uppercase tracking-widest text-accent/60 mb-2">Ayuda Visual</p>
-                <p className="text-[10px] font-bold text-muted-foreground leading-relaxed">
-                  Dada la naturaleza irregular de los proyectos, puedes establecer una malla de referencia ahora, pero la identificación final se hará **manualmente sobre el plano**.
-                </p>
-              </div>
             </div>
 
             {/* Right Column: Elevation Image */}

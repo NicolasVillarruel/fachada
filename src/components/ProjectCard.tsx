@@ -17,8 +17,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ id, name, address, start_date, delivery_date, image_url, progress = 0, onEdit, onDelete, index = 0 }: ProjectCardProps) {
-  const colors = ['purple', 'blue', 'green', 'yellow', 'pink', 'orange'];
-  const colorClass = `card-accent-${colors[index % colors.length]}`;
+  const colorClass = 'card-accent-blue';
   const defaultImage = "https://images.unsplash.com/photo-1486406146926-c627a92fb1ab?q=80&w=2070&auto=format&fit=crop";
 
   return (
