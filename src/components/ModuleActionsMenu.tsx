@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Module, ModuleStatus } from './FacadeMap';
 
 interface ModuleActionsMenuProps {
@@ -39,17 +39,48 @@ export default function ModuleActionsMenu({
   // If we are at the bottom but also very close to the top (unlikely but possible), prefer bottom
   const shouldFlipY = isBottomSide && position.y > 400;
 
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div 
-      className="fixed z-[130] animate-in fade-in zoom-in duration-200"
-      style={{ 
-        left: position.x, 
-        top: position.y,
-        transform: `translate(${isRightSide ? '-100%' : '0%'}, ${shouldFlipY ? '-100%' : '0%'})`,
-        marginTop: shouldFlipY ? '-12px' : '12px',
-        marginLeft: isRightSide ? '-12px' : '12px'
-      }}
-    >
+    <>
+      {isMobile && (
+        <svg className="fixed inset-0 w-full h-full pointer-events-none z-[125]">
+          <line 
+            x1="50%" 
+            y1="50%" 
+            x2={position.x} 
+            y2={position.y} 
+            stroke="hsl(var(--accent))" 
+            strokeWidth="2" 
+            strokeDasharray="4 4"
+            className="opacity-50"
+          />
+          <circle cx={position.x} cy={position.y} r="6" fill="hsl(var(--accent))" className="animate-ping opacity-75" />
+          <circle cx={position.x} cy={position.y} r="3" fill="hsl(var(--accent))" />
+        </svg>
+      )}
+      <div 
+        className="fixed z-[130] animate-in fade-in zoom-in duration-200"
+        style={isMobile ? {
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+        } : { 
+          left: position.x, 
+          top: position.y,
+          transform: `translate(${isRightSide ? '-100%' : '0%'}, ${shouldFlipY ? '-100%' : '0%'})`,
+          marginTop: shouldFlipY ? '-12px' : '12px',
+          marginLeft: isRightSide ? '-12px' : '12px'
+        }}
+      >
       <div className="bg-card border border-card-border rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-3xl p-1 min-w-[240px] max-w-[280px] overflow-hidden">
         {/* Header with Tabs - Added pr-10 to avoid close button overlap */}
         <div className="flex border-b border-card-border mb-2.5 pr-10">
@@ -181,5 +212,6 @@ export default function ModuleActionsMenu({
         </button>
       </div>
     </div>
+    </>
   );
 }
