@@ -162,7 +162,7 @@ export default function Dashboard() {
         </header>
 
         {loading && projects.length === 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-96 bg-card/40 rounded-[2.5rem] border border-card-border animate-pulse" />
             ))}
@@ -187,7 +187,7 @@ export default function Dashboard() {
              </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {projects.map((project, index) => (
               <ProjectCard 
                 key={project.id}

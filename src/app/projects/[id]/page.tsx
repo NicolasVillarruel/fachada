@@ -676,7 +676,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             {facades.map((facade) => (
               <div key={facade.id} className="relative group bg-card border border-card-border rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 h-full flex flex-col justify-between overflow-hidden group-hover:-translate-y-1">
                 {/* Header Row - Part of standard flow to avoid overlapping */}
