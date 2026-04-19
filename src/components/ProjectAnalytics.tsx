@@ -129,68 +129,68 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
         </div>
 
         {/* 2. KPIs Section - 25% width stacked on the right */}
-        <div className="flex flex-col gap-4 h-full">
+        <div className="grid grid-cols-2 lg:flex lg:flex-col gap-3 lg:gap-4 h-full">
           {/* Status indicator */}
-          <div className={`p-3 rounded-2xl border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1 transition-all ${
-            isDelayed ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-green-500/20'
+          <div className={`p-3 lg:p-4 rounded-2xl border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1 transition-all ${
+            isDelayed ? 'bg-red-500/10 border-red-500/20 dark:bg-red-500/5' : 'bg-green-500/10 border-green-500/20 dark:bg-green-500/5'
           }`}>
-            <div className="flex justify-between items-start">
-               <div className="flex items-center gap-1.5">
-                 <div className={`p-1 rounded-lg ${isDelayed ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                   <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div className="flex justify-between items-start mb-2 lg:mb-0">
+               <div className="flex items-center gap-2">
+                 <div className={`p-1.5 rounded-xl ${isDelayed ? 'bg-red-500/20 text-red-600 dark:text-red-400' : 'bg-green-500/20 text-green-600 dark:text-green-400'}`}>
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                  </div>
-                 <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Estado Tiempo</span>
+                 <span className={`text-[9px] font-black uppercase tracking-widest opacity-80 ${isDelayed ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>Tiempo</span>
                </div>
                <div className={`w-1.5 h-1.5 rounded-full animate-pulse shadow-lg ${isDelayed ? 'bg-red-500 shadow-red-500/50' : 'bg-green-500 shadow-green-500/50'}`} />
             </div>
             <div>
-              <h4 className={`text-base font-black font-manrope leading-tight ${isDelayed ? 'text-red-500' : 'text-green-500'}`}>
+              <h4 className={`text-lg lg:text-xl font-black font-manrope leading-tight ${isDelayed ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                 {absDeviation === 0 ? 'En Tiempo' : `${absDeviation}d ${isDelayed ? 'Atrás' : 'Adel.'}`}
               </h4>
             </div>
           </div>
 
           {/* Velocity */}
-          <div className="p-3 rounded-2xl bg-brand-blue/5 border border-brand-blue/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-1.5">
-              <div className="p-1 rounded-lg bg-brand-blue/10 text-brand-blue">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          <div className="p-3 lg:p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 dark:bg-blue-500/5 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-2 mb-2 lg:mb-0">
+              <div className="p-1.5 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-brand-blue">Velocidad</span>
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-80 text-blue-600 dark:text-blue-400">Velocidad</span>
             </div>
             <div>
-              <h4 className="text-base font-black font-manrope text-brand-blue leading-tight">
-                {velocity.toFixed(1)}% <span className="text-[9px] opacity-60 text-foreground">/ día</span>
+              <h4 className="text-lg lg:text-xl font-black font-manrope text-blue-600 dark:text-blue-400 leading-tight">
+                {velocity.toFixed(1)}% <span className="text-[10px] opacity-60">/ día</span>
               </h4>
             </div>
           </div>
 
           {/* Estimated End */}
-          <div className="p-3 rounded-2xl bg-brand-purple/5 border border-brand-purple/20 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-1.5">
-              <div className="p-1 rounded-lg bg-brand-purple/10 text-brand-purple">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div className="p-3 lg:p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 dark:bg-purple-500/5 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-2 mb-2 lg:mb-0">
+              <div className="p-1.5 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-brand-purple">Proyección</span>
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-80 text-purple-600 dark:text-purple-400">Proyección</span>
             </div>
             <div>
-              <h4 className="text-base font-black font-manrope text-brand-purple leading-tight">
+              <h4 className="text-lg lg:text-xl font-black font-manrope text-purple-600 dark:text-purple-400 leading-tight">
                 {estimatedCompletion ? format(estimatedCompletion, 'dd MMM yy', { locale: es }) : 'TBD'}
               </h4>
             </div>
           </div>
 
           {/* Breach */}
-          <div className="p-3 rounded-2xl bg-card border border-card-border shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
-            <div className="flex items-center gap-1.5">
-              <div className="p-1 rounded-lg bg-muted/10 text-muted">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4"/><path d="m5 11 7-7 7 7"/></svg>
+          <div className="p-3 lg:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 dark:bg-amber-500/5 shadow-lg backdrop-blur-xl flex flex-col justify-between flex-1">
+            <div className="flex items-center gap-2 mb-2 lg:mb-0">
+              <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4"/><path d="m5 11 7-7 7 7"/></svg>
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-muted">Diferencia</span>
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-80 text-amber-600 dark:text-amber-400">Diferencia</span>
             </div>
             <div>
-               <h4 className={`text-base font-black font-manrope leading-tight ${currentProgress >= expectedProgressToday ? 'text-green-500' : 'text-accent'}`}>
-                 {currentProgress >= expectedProgressToday ? '+' : ''}{currentProgress - expectedProgressToday}%
+               <h4 className="text-lg lg:text-xl font-black font-manrope leading-tight text-amber-600 dark:text-amber-400">
+                 {currentProgress >= expectedProgressToday ? '+' : ''}{Math.round(currentProgress - expectedProgressToday)}%
                </h4>
             </div>
           </div>
