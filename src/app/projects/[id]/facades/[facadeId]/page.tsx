@@ -160,11 +160,16 @@ export default function FacadeView({ params }: { params: Promise<{ id: string, f
   const handleModuleClick = (module: Module, e: React.MouseEvent) => {
     if (isMappingMode) return;
     
+    // Calculate exact center of the clicked element
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
     // Calculate popover position
     setSelectedModule({
       module,
-      x: e.clientX,
-      y: e.clientY
+      x: centerX,
+      y: centerY
     });
   };
 

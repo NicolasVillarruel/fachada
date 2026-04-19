@@ -57,16 +57,7 @@ export default function ModuleActionsMenu({
   return (
     <>
       <div 
-        className="fixed z-[129] w-4 h-4 bg-card border border-card-border"
-        style={{
-          left: arrowLeft - 8,
-          top: isBottomHalf ? position.y - 28 : position.y + 12,
-          transform: 'rotate(45deg)',
-          boxShadow: '0 0 15px rgba(0,0,0,0.5)',
-        }}
-      />
-      <div 
-        className="fixed z-[130] animate-in fade-in zoom-in duration-200"
+        className="fixed z-[130] animate-in fade-in zoom-in duration-200 flex flex-col items-center"
         style={{
           left: safeLeft,
           transform: 'translateX(-50%)',
@@ -74,8 +65,19 @@ export default function ModuleActionsMenu({
           bottom: isBottomHalf ? `${windowSize.height - position.y + 20}px` : 'auto',
         }}
       >
-      <div className="bg-card border border-card-border rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-3xl p-1 min-w-[240px] max-w-[280px] overflow-hidden">
-        {/* Header with Tabs - Added pr-10 to avoid close button overlap */}
+        {/* If pointing UP (modal below dot), arrow goes ABOVE the inner div */}
+        {!isBottomHalf && (
+           <div 
+             className="absolute top-[-7px] w-4 h-4 bg-card border-t border-l border-card-border rounded-tl-[2px] z-20" 
+             style={{ 
+               left: `calc(50% + ${arrowLeft - safeLeft}px)`, 
+               transform: 'translateX(-50%) rotate(45deg)' 
+             }} 
+           />
+        )}
+
+        <div className="w-full bg-card border border-card-border rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-3xl p-1 min-w-[240px] max-w-[280px] overflow-hidden relative z-10">
+          {/* Header with Tabs - Added pr-10 to avoid close button overlap */}
         <div className="flex border-b border-card-border mb-2.5 pr-10">
           <button 
             onClick={() => setActiveTab('status')}
@@ -204,6 +206,17 @@ export default function ModuleActionsMenu({
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
+
+        {/* If pointing DOWN (modal above dot), arrow goes BELOW the inner div */}
+        {isBottomHalf && (
+           <div 
+             className="absolute bottom-[-7px] w-4 h-4 bg-card border-b border-r border-card-border rounded-br-[2px] z-20" 
+             style={{ 
+               left: `calc(50% + ${arrowLeft - safeLeft}px)`, 
+               transform: 'translateX(-50%) rotate(45deg)' 
+             }} 
+           />
+        )}
     </div>
     </>
   );
