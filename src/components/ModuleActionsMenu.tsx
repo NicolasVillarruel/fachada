@@ -33,52 +33,45 @@ export default function ModuleActionsMenu({
     onUpdateMetadata(localData, selectedFile || undefined);
   };
 
-  // Smart positioning logic: flip the menu if too close to edges
-  const isRightSide = typeof window !== 'undefined' ? position.x > window.innerWidth - 300 : false;
-  const isBottomSide = typeof window !== 'undefined' ? position.y > window.innerHeight - 350 : false;
-  // If we are at the bottom but also very close to the top (unlikely but possible), prefer bottom
-  const shouldFlipY = isBottomSide && position.y > 400;
-
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
-  );
+  const [windowSize, setWindowSize] = useState({ 
+    width: typeof window !== 'undefined' ? window.innerWidth : 0, 
+    height: typeof window !== 'undefined' ? window.innerHeight : 0 
+  });
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const isBottomHalf = windowSize.height > 0 && position.y > windowSize.height / 2;
+  
+  // Safe center for modal: clamping the center x-coordinate so it doesn't overflow edges
+  const safeLeft = windowSize.width > 0 
+    ? Math.min(Math.max(position.x, 145), windowSize.width - 145)
+    : position.x;
+
+  // Position arrow so it aligns with position.x, but bounded within the straight edges of the modal
+  const arrowLeft = Math.min(Math.max(position.x, safeLeft - 100), safeLeft + 100);
 
   return (
     <>
-      {isMobile && (
-        <svg className="fixed inset-0 w-full h-full pointer-events-none z-[125]">
-          <line 
-            x1="50%" 
-            y1="50%" 
-            x2={position.x} 
-            y2={position.y} 
-            stroke="hsl(var(--accent))" 
-            strokeWidth="2" 
-            strokeDasharray="4 4"
-            className="opacity-50"
-          />
-          <circle cx={position.x} cy={position.y} r="6" fill="hsl(var(--accent))" className="animate-ping opacity-75" />
-          <circle cx={position.x} cy={position.y} r="3" fill="hsl(var(--accent))" />
-        </svg>
-      )}
+      <div 
+        className="fixed z-[129] w-4 h-4 bg-card border border-card-border"
+        style={{
+          left: arrowLeft - 8,
+          top: isBottomHalf ? position.y - 28 : position.y + 12,
+          transform: 'rotate(45deg)',
+          boxShadow: '0 0 15px rgba(0,0,0,0.5)',
+        }}
+      />
       <div 
         className="fixed z-[130] animate-in fade-in zoom-in duration-200"
-        style={isMobile ? {
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-        } : { 
-          left: position.x, 
-          top: position.y,
-          transform: `translate(${isRightSide ? '-100%' : '0%'}, ${shouldFlipY ? '-100%' : '0%'})`,
-          marginTop: shouldFlipY ? '-12px' : '12px',
-          marginLeft: isRightSide ? '-12px' : '12px'
+        style={{
+          left: safeLeft,
+          transform: 'translateX(-50%)',
+          top: isBottomHalf ? 'auto' : `${position.y + 20}px`,
+          bottom: isBottomHalf ? `${windowSize.height - position.y + 20}px` : 'auto',
         }}
       >
       <div className="bg-card border border-card-border rounded-[1.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-3xl p-1 min-w-[240px] max-w-[280px] overflow-hidden">
