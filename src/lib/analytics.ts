@@ -2,8 +2,9 @@ import { format, differenceInDays, addDays, isBefore, isAfter, startOfDay, parse
 
 export interface DailySnapshot {
   date: string;
-  actual: number;
-  expected: number;
+  actual?: number;
+  expected?: number;
+  projected?: number;
 }
 
 export interface AnalyticsResult {
@@ -13,6 +14,8 @@ export interface AnalyticsResult {
   deviationDays: number; // + for delay, - for ahead
   currentProgress: number;
   expectedProgressToday: number;
+  startDate: Date;
+  deliveryDate: Date;
 }
 
 export function calculateProjectAnalytics(
@@ -32,13 +35,14 @@ export function calculateProjectAnalytics(
       estimatedCompletion: null,
       deviationDays: 0,
       currentProgress: 0,
-      expectedProgressToday: 0
+      expectedProgressToday: 0,
+      startDate,
+      deliveryDate
     };
   }
 
-  // 1. Reconstruct History
-  const timeline: DailySnapshot[] = [];
-  const daysSinceStart = differenceInDays(today, startDate);
+  // 1. Reconstruct History up to today
+  const daysSinceStart = Math.max(0, differenceInDays(today, startDate));
   const totalDaysPlanned = differenceInDays(deliveryDate, startDate) || 1;
 
   // We group logs by date for efficient lookup
@@ -58,7 +62,9 @@ export function calculateProjectAnalytics(
   // To properly reconstruct, we need logs sorted by time
   const sortedLogs = [...logs].sort((a, b) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime());
 
-  // We'll iterate from start date to today
+  let currentActualProgress = 0;
+
+  // Calculate actual progress up to today to establish velocity
   for (let i = 0; i <= daysSinceStart; i++) {
     const currentDate = addDays(startDate, i);
     const dateStr = format(currentDate, 'yyyy-MM-dd');
@@ -71,53 +77,102 @@ export function calculateProjectAnalytics(
       }
     });
 
-    // Calculate progress for this day
-    let actualProgress;
-    
     if (i === daysSinceStart) {
       // For the current day, use the actual real-time status as the ground truth
-      // to avoid discrepancies if status_logs and current module status are out of sync
       let currentWeightedSum = 0;
       modules.forEach(m => {
         if (m.status === 'COMPLETED') currentWeightedSum += 1;
         else if (m.status === 'IN_PROGRESS') currentWeightedSum += 0.5;
       });
-      actualProgress = Math.round((currentWeightedSum / totalModules) * 100);
+      currentActualProgress = Math.round((currentWeightedSum / totalModules) * 100);
     } else {
       let weightedSum = 0;
       Object.values(moduleStates).forEach(status => {
         if (status === 'COMPLETED') weightedSum += 1;
         else if (status === 'IN_PROGRESS') weightedSum += 0.5;
       });
-      actualProgress = Math.round((weightedSum / totalModules) * 100);
+      currentActualProgress = Math.round((weightedSum / totalModules) * 100);
     }
+  }
+
+  const currentProgress = currentActualProgress;
+  const velocity = daysSinceStart > 0 ? currentProgress / daysSinceStart : 0;
+
+  let estimatedCompletion = null;
+  let deviationDays = 0;
+  let daysToEstimate = 0;
+
+  if (velocity > 0 && currentProgress < 100) {
+    const remainingProgress = 100 - currentProgress;
+    daysToEstimate = Math.ceil(remainingProgress / velocity);
+    estimatedCompletion = addDays(today, daysToEstimate);
+    deviationDays = differenceInDays(estimatedCompletion, deliveryDate);
+  } else if (currentProgress >= 100) {
+    estimatedCompletion = today;
+    deviationDays = differenceInDays(today, deliveryDate);
+  }
+
+  // 2. Build full timeline up to the max date (today, delivery, or estimated)
+  const timeline: DailySnapshot[] = [];
+  const lastTimelineDate = new Date(Math.max(
+    today.getTime(),
+    deliveryDate.getTime(),
+    estimatedCompletion ? estimatedCompletion.getTime() : 0
+  ));
+  
+  const totalTimelineDays = Math.max(0, differenceInDays(lastTimelineDate, startDate));
+  
+  // Reset module states to simulate actual progress again for the timeline
+  Object.keys(moduleStates).forEach(k => moduleStates[k] = 'PENDING');
+
+  for (let i = 0; i <= totalTimelineDays; i++) {
+    const currentDate = addDays(startDate, i);
+    const dateStr = format(currentDate, 'yyyy-MM-dd');
 
     const expectedProgress = Math.min(100, Math.round((i / totalDaysPlanned) * 100));
+    
+    let actualProgress: number | undefined = undefined;
+    let projectedProgress: number | undefined = undefined;
+
+    if (i <= daysSinceStart) {
+      // Calculate actual progress for past days
+      sortedLogs.forEach(log => {
+        const logDate = startOfDay(parseISO(log.changed_at));
+        if (format(logDate, 'yyyy-MM-dd') === dateStr) {
+          moduleStates[log.module_id] = log.new_status;
+        }
+      });
+
+      if (i === daysSinceStart) {
+        actualProgress = currentProgress;
+        projectedProgress = currentProgress; // Start projection from today's actual
+      } else {
+        let weightedSum = 0;
+        Object.values(moduleStates).forEach(status => {
+          if (status === 'COMPLETED') weightedSum += 1;
+          else if (status === 'IN_PROGRESS') weightedSum += 0.5;
+        });
+        actualProgress = Math.round((weightedSum / totalModules) * 100);
+      }
+    } else {
+      // Future dates
+      if (estimatedCompletion && isBefore(currentDate, estimatedCompletion) || currentDate.getTime() === estimatedCompletion?.getTime()) {
+        const daysFromToday = differenceInDays(currentDate, today);
+        projectedProgress = Math.min(100, Math.round(currentProgress + (daysFromToday * velocity)));
+      } else if (estimatedCompletion && isAfter(currentDate, estimatedCompletion)) {
+        projectedProgress = 100;
+      }
+    }
 
     timeline.push({
       date: dateStr,
       actual: actualProgress,
-      expected: expectedProgress
+      expected: expectedProgress,
+      projected: projectedProgress
     });
   }
 
-  // 2. Calculate Velocity (Progress per day)
-  // We use the last 7 days or total if less
-  const currentProgress = timeline.length > 0 ? timeline[timeline.length - 1].actual : 0;
-  const velocity = daysSinceStart > 0 ? currentProgress / daysSinceStart : 0;
-
-  // 3. Predictive Meta
-  let estimatedCompletion = null;
-  let deviationDays = 0;
-
-  if (velocity > 0 && currentProgress < 100) {
-    const remainingProgress = 100 - currentProgress;
-    const remainingDays = Math.ceil(remainingProgress / velocity);
-    estimatedCompletion = addDays(today, remainingDays);
-    deviationDays = differenceInDays(estimatedCompletion, deliveryDate);
-  }
-
-  const expectedProgressToday = timeline.length > 0 ? timeline[timeline.length - 1].expected : 0;
+  const expectedProgressToday = Math.min(100, Math.round((daysSinceStart / totalDaysPlanned) * 100));
 
   return {
     timeline,
@@ -125,6 +180,8 @@ export function calculateProjectAnalytics(
     estimatedCompletion,
     deviationDays,
     currentProgress,
-    expectedProgressToday
+    expectedProgressToday,
+    startDate,
+    deliveryDate
   };
 }

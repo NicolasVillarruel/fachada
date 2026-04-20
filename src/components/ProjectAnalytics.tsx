@@ -22,12 +22,16 @@ interface ProjectAnalyticsProps {
 
 export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
   if (!data) return null;
-  const { timeline, velocity, estimatedCompletion, deviationDays, currentProgress, expectedProgressToday } = data;
+  const { timeline, velocity, estimatedCompletion, deviationDays, currentProgress, expectedProgressToday, deliveryDate } = data;
 
   if (!timeline || timeline.length === 0) return null;
 
   const isDelayed = deviationDays > 0;
   const absDeviation = Math.abs(deviationDays);
+
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const deliveryStr = deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : '';
+  const estCompletionStr = estimatedCompletion ? format(estimatedCompletion, 'yyyy-MM-dd') : '';
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -48,12 +52,16 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                  <div className="w-3 h-3 rounded-full bg-[#d52974]" />
                  <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Plan</span>
               </div>
+              <div className="flex items-center gap-2">
+                 <div className="w-3 h-3 rounded-full bg-amber-500" />
+                 <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Proyectado</span>
+              </div>
             </div>
           </div>
 
           <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={timeline} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={timeline} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                 <defs>
                   <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--brand-blue)" stopOpacity={0.1}/>
@@ -84,20 +92,34 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                 <Tooltip 
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
+                      const actualPayload = payload.find(p => p.dataKey === 'actual');
+                      const expectedPayload = payload.find(p => p.dataKey === 'expected');
+                      const projectedPayload = payload.find(p => p.dataKey === 'projected');
+                      
                       return (
                         <div className="bg-card/90 backdrop-blur-md border border-card-border p-4 rounded-2xl shadow-2xl">
                           <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">
                             {label ? format(parseISO(label.toString()), 'EEEE, dd MMMM', { locale: es }) : ''}
                           </p>
                           <div className="space-y-1">
-                            <p className="text-sm font-black text-brand-blue flex justify-between gap-4">
-                              <span>Avance Real:</span>
-                              <span>{payload[0].value}%</span>
-                            </p>
-                            <p className="text-sm font-black text-[#d52974] flex justify-between gap-4">
-                              <span>Planificado:</span>
-                              <span>{payload[1].value}%</span>
-                            </p>
+                            {actualPayload && actualPayload.value !== undefined && (
+                              <p className="text-sm font-black text-brand-blue flex justify-between gap-4">
+                                <span>Avance Real:</span>
+                                <span>{actualPayload.value}%</span>
+                              </p>
+                            )}
+                            {expectedPayload && expectedPayload.value !== undefined && (
+                              <p className="text-sm font-black text-[#d52974] flex justify-between gap-4">
+                                <span>Planificado:</span>
+                                <span>{expectedPayload.value}%</span>
+                              </p>
+                            )}
+                            {projectedPayload && projectedPayload.value !== undefined && (
+                              <p className="text-sm font-black text-amber-500 flex justify-between gap-4">
+                                <span>Proyectado:</span>
+                                <span>{projectedPayload.value}%</span>
+                              </p>
+                            )}
                           </div>
                         </div>
                       );
@@ -113,6 +135,7 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                   fillOpacity={1} 
                   fill="url(#colorActual)" 
                   animationDuration={1500}
+                  connectNulls={false}
                 />
                 <Area 
                   type="monotone" 
@@ -123,6 +146,19 @@ export default function ProjectAnalytics({ data }: ProjectAnalyticsProps) {
                   fill="none" 
                   animationDuration={1500}
                 />
+                <Area 
+                  type="monotone" 
+                  dataKey="projected" 
+                  stroke="#f59e0b" 
+                  strokeWidth={2.5}
+                  strokeDasharray="5 5"
+                  fill="none" 
+                  animationDuration={1500}
+                  connectNulls={false}
+                />
+                <ReferenceLine x={todayStr} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'insideBottom', value: 'Hoy', fill: '#ef4444', fontSize: 10, fontWeight: 900, dy: 15 }} />
+                {deliveryStr && <ReferenceLine x={deliveryStr} stroke="#94a3b8" strokeDasharray="3 3" label={{ position: 'insideBottom', value: 'Plan', fill: '#94a3b8', fontSize: 10, fontWeight: 900, dy: 15 }} />}
+                {estCompletionStr && estCompletionStr !== deliveryStr && <ReferenceLine x={estCompletionStr} stroke="#f59e0b" strokeDasharray="3 3" label={{ position: 'insideBottom', value: 'Proyección', fill: '#f59e0b', fontSize: 10, fontWeight: 900, dy: 15 }} />}
               </AreaChart>
             </ResponsiveContainer>
           </div>
