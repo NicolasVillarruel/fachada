@@ -331,15 +331,20 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
       
       // Legend
       setFill(BLUE);
-      pdf.circle(W - MARGIN - 23, y - 1, 1, 'F');
+      pdf.circle(W - MARGIN - 38, y - 1, 1, 'F');
       setColor(BLACK);
       pdf.setFontSize(5.5);
-      pdf.text('REAL', W - MARGIN - 20, y);
+      pdf.text('REAL', W - MARGIN - 35, y);
 
       setFill(PINK);
-      pdf.circle(W - MARGIN - 9, y - 1, 1, 'F');
+      pdf.circle(W - MARGIN - 24, y - 1, 1, 'F');
       setColor(BLACK);
-      pdf.text('PLAN', W - MARGIN - 6, y);
+      pdf.text('PLAN', W - MARGIN - 21, y);
+
+      setFill(AMBER);
+      pdf.circle(W - MARGIN - 10, y - 1, 1, 'F');
+      setColor(BLACK);
+      pdf.text('PROY.', W - MARGIN - 7, y);
 
       y += 5;
       
@@ -369,23 +374,41 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
         pdf.setLineWidth(0.4);
         pdf.setLineDashPattern([1, 1], 0);
         for (let i = 0; i < tl.length - 1; i++) {
-          const x1 = chartX + i * stepX;
-          const y1 = y + chartH - (tl[i].expected / 100) * chartH;
-          const x2 = chartX + (i + 1) * stepX;
-          const y2 = y + chartH - (tl[i+1].expected / 100) * chartH;
-          pdf.line(x1, y1, x2, y2);
+          if (tl[i].expected !== undefined && tl[i+1].expected !== undefined) {
+            const x1 = chartX + i * stepX;
+            const y1 = y + chartH - (tl[i].expected! / 100) * chartH;
+            const x2 = chartX + (i + 1) * stepX;
+            const y2 = y + chartH - (tl[i+1].expected! / 100) * chartH;
+            pdf.line(x1, y1, x2, y2);
+          }
         }
         
+        // Projected line (dashed, AMBER)
+        setDraw(AMBER);
+        pdf.setLineWidth(0.5);
+        pdf.setLineDashPattern([1, 1], 0);
+        for (let i = 0; i < tl.length - 1; i++) {
+          if (tl[i].projected !== undefined && tl[i+1].projected !== undefined) {
+            const x1 = chartX + i * stepX;
+            const y1 = y + chartH - (tl[i].projected! / 100) * chartH;
+            const x2 = chartX + (i + 1) * stepX;
+            const y2 = y + chartH - (tl[i+1].projected! / 100) * chartH;
+            pdf.line(x1, y1, x2, y2);
+          }
+        }
+
         // Real line (solid, BLUE)
         setDraw(BLUE);
         pdf.setLineWidth(0.6);
         pdf.setLineDashPattern([], 0); // reset
         for (let i = 0; i < tl.length - 1; i++) {
-          const x1 = chartX + i * stepX;
-          const y1 = y + chartH - (tl[i].actual / 100) * chartH;
-          const x2 = chartX + (i + 1) * stepX;
-          const y2 = y + chartH - (tl[i+1].actual / 100) * chartH;
-          pdf.line(x1, y1, x2, y2);
+          if (tl[i].actual !== undefined && tl[i+1].actual !== undefined) {
+            const x1 = chartX + i * stepX;
+            const y1 = y + chartH - (tl[i].actual! / 100) * chartH;
+            const x2 = chartX + (i + 1) * stepX;
+            const y2 = y + chartH - (tl[i+1].actual! / 100) * chartH;
+            pdf.line(x1, y1, x2, y2);
+          }
         }
         
         // Dates on X-axis
