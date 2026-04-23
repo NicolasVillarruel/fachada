@@ -699,13 +699,13 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 pb-20">
             {facades.map((facade) => (
               <div key={facade.id} className="relative group bg-card border border-card-border rounded-[1.5rem] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 h-full flex flex-col justify-between overflow-hidden group-hover:-translate-y-1">
                 {/* Header Row - Part of standard flow to avoid overlapping */}
                 <div className="p-6 pb-4 flex justify-between items-start gap-3 relative z-20">
                   <Link href={`/projects/${projectId}/facades/${facade.id}`} className="min-w-0 flex-1 group/title block">
-                    <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover/title:text-accent transition-colors truncate">
+                    <h3 className="text-xl font-black font-manrope tracking-tight leading-tight group-hover/title:text-accent transition-colors">
                       {facade.name}
                     </h3>
                     <div className="mt-2">
@@ -713,7 +713,7 @@ export default function ProjectDetails({ params }: { params: Promise<{ id: strin
                     </div>
                   </Link>
 
-                  <div className="flex items-center gap-1.5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1.5 shrink-0 opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={(e) => handleEditFacade(e, facade)}
                       className="p-2.5 bg-background border border-card-border rounded-xl text-muted hover:text-accent hover:border-accent/40 shadow-sm transition-all"
