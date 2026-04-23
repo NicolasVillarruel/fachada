@@ -83,7 +83,7 @@ export default function ProjectCard({ id, name, address, start_date, delivery_da
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 bg-slate-100/50 dark:bg-white/5 p-2.5 rounded-xl border border-card-border/50">
+        <div className="grid grid-cols-2 gap-2.5 bg-white/5 p-2.5 rounded-xl border border-card-border/50">
           <div className="space-y-0.5">
             <p className="text-[7px] uppercase tracking-widest text-muted font-black">
               Inicio
